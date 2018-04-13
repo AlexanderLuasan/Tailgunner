@@ -1,5 +1,6 @@
 import pygame
 import constants
+import projectile
 
 #draws health bar
 
@@ -81,6 +82,14 @@ class player(pygame.sprite.Sprite):
         self.accStep = 1
         self.turetAngle = 0
         
+        
+        #turret
+        self.turretheading = [0,0]
+        self.turretPos = [1,1]
+        self.turretPosDict = {(0,-1):(1,1),(-1,-1):(2,11),(-1,0):(4,9),(-1,1):(5,8),(0,1):(6,6),(1,1):(8,5),(1,0):(9,4),(1,-1):(11,2)}
+        self.turrefireangle = [-1,-1]
+        self.turretfire = False
+        #stat bars
         self.healthBar = hudBar(20,constants.screenSize[1]-100,"right",100,100,(255,0,0))
         self.gunBar = hudBar(40,constants.screenSize[1]-100,"right",100,100,(255,255,0))
         self.firecount=0
@@ -88,11 +97,13 @@ class player(pygame.sprite.Sprite):
         self.airBar = hudBar(60,constants.screenSize[1]-100,"right",100,100,(255,0,255))
         self.allbar = [self.airBar,self.gunBar,self.healthBar]
         self.other = True
+        #dieng
         self.deathdelay = 0
         self.dead = False
         self.respawn= False
         self.repsawnTime = 0
         self.iframes=False
+        #rolling
         self.roll = 0
         self.rolling = False
         self.rollingDir = 0
@@ -103,6 +114,19 @@ class player(pygame.sprite.Sprite):
         return (self.healthBar,self.gunBar,self.airBar)
     def fireToggle(self,state):
         self.firing=state
+    def setTurretHeading(self,direction):
+        self.turretheading = (direction[0],direction[1])
+        if self.turretheading!=(0,0):
+            self.turretPos = self.turretPosDict[self.turretheading]
+    def fireTurret(self):
+        self.turretfire = True
+    def adjTurretHeading(self,direction):
+        
+        
+        self.turretheading=(direction[0],direction[1])
+        
+        if self.turretheading!=(0,0):
+            self.turretPos = self.turretPosDict[self.turretheading]        
     def fire(self):
         if self.firecount<1:
             if self.gunBar.getV()>5:
@@ -142,7 +166,8 @@ class player(pygame.sprite.Sprite):
                 self.rollcount+=self.rollDir
                 if self.rollcount<0:
                     self.heading[0]=1.5*self.planeSpeed
-                    self.rolling=False                
+                    self.rolling=False
+                    
             elif self.rollDir>0:
                 self.image=self.toproll[self.rollcount]
                 self.heading[0] = self.toprollspeed[self.rollcount]
@@ -158,6 +183,7 @@ class player(pygame.sprite.Sprite):
     def adjustRoll(self,direction):
         self.roll+=direction
     def setRoll(self,direction):
+        print("selfRoll",direction)
         self.roll = direction
         if self.heading[0]<=-1.5*self.planeSpeed and self.roll<0:
             if self.rolling !=True:
@@ -180,7 +206,6 @@ class player(pygame.sprite.Sprite):
     def update(self,enimies,attacks):
         if self.healthBar.currentV<0:
             return self.death()
-        
         #acceeration:
         if self.headingPrime[0]>0 and (self.heading[0]<self.planeSpeed or (self.roll>0 and self.heading[0]<1.5*self.planeSpeed)):
             self.heading[0]+=self.accStep
@@ -191,6 +216,7 @@ class player(pygame.sprite.Sprite):
                 self.heading[0]-=self.accStep
             else:
                 self.heading[0]+=self.accStep
+                
         if self.headingPrime[1]>0 and self.heading[1]<self.planeSpeed:
             self.heading[1]+=self.accStep
         elif self.headingPrime[1]<0 and self.heading[1]>-self.planeSpeed:
@@ -209,20 +235,26 @@ class player(pygame.sprite.Sprite):
             else:
                 self.rolling=False
         else:
-            self.airBar.adjv(.1)
+            self.airBar.adjv(1)
             tilt = 2*abs(int(self.heading[0]/4))
             self.tim+=1    
             if self.tim%4 > 1:
                 tilt+=1
             if self.heading[0]>0:
                 if len(self.animation[-1])>tilt:
-                    self.image = self.animation[-1][tilt]
+                    if tilt>3 and self.turretPos[1] == 11:
+                        self.image = self.animation[-2][tilt]
+                    else:
+                        self.image = self.animation[-1*self.turretPos[1]][tilt]
             elif self.heading[0]<0:
                 if len(self.animation[1])>tilt:
-                    self.image = self.animation[1][tilt]
+                    if tilt>3 and self.turretPos[0] == 11:
+                        self.image = self.animation[2][tilt] 
+                    else:
+                        self.image = self.animation[1*self.turretPos[0]][tilt]
                   
             else:
-                self.image = self.animation[1][tilt%2]
+                self.image = self.animation[1*self.turretPos[0]][tilt%2]
         
         
         #speed
@@ -252,7 +284,7 @@ class player(pygame.sprite.Sprite):
             else:
                 self.other=True
         
-        
+        #getting hit
         hits=pygame.sprite.spritecollide(self, attacks, False)
         for i in hits:
             dam=i.hit()
@@ -266,7 +298,21 @@ class player(pygame.sprite.Sprite):
             else:
                 self.healthBar.adjv(-20)
         if self.healthBar.currentV<0:
-            return self.death()            
+            return self.death()       
+        #fireing
+        end = ["fire"]
+        if self.firing and self.fire():
+            s=projectile.playershot(self.rect.center[0],self.rect.center[1],-constants.math.pi/2)
+            end.append(s)
+        if self.turretfire and self.fire():
+            if self.turretheading[0] !=0 and self.turretheading[1] !=0 :
+                s=projectile.turretshot(self.rect.center[0],self.rect.center[1],[self.turretheading[0]*(2**.5)/2,self.turretheading[1]*(2**.5)/2])
+            else:
+                s=projectile.turretshot(self.rect.center[0],self.rect.center[1],self.turretheading)
+            end.append(s)
+            self.turretfire=False
+        if len(end)>1:
+            return end
 
 
 

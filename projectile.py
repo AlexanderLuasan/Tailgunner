@@ -7,7 +7,7 @@ class zeroShot(pygame.sprite.Sprite):
         onGround = True  
         self.image=pygame.Surface([4,10])
         self.image.fill((255,0,0))
-        self.speed=4
+        self.speed=8
         self.rect=self.image.get_rect()
         self.rect.center=(x,y)
         self.angle=angle
@@ -43,6 +43,7 @@ class shot(pygame.sprite.Sprite):
         self.rect.y+=self.direction[1]*self.speed
         if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
             self.kill()
+
 class playershot(pygame.sprite.Sprite):
     def __init__(self,x,y,angle):
         super().__init__()
@@ -65,6 +66,28 @@ class playershot(pygame.sprite.Sprite):
     def update(self):
         self.rect.x+=self.direction[0]*self.speed
         self.rect.y+=self.direction[1]*self.speed
+        if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
+            self.kill()
+class turretshot(pygame.sprite.Sprite):
+    def __init__(self,x,y,direction):
+        super().__init__()
+        inAir=True
+        onGround = True
+        size = [7,7]
+        self.image=pygame.Surface(size)
+        self.image.fill((0,0,0))
+        pygame.draw.ellipse(self.image,(255,0,0),(0,0,7,7),0)
+        self.image.set_colorkey((0,0,0))
+        self.speed=12
+        self.rect=self.image.get_rect()
+        self.rect.center=(x,y)
+        self.direction = direction
+    def hit(self):
+        self.kill()
+        return 1
+    def update(self):
+        self.rect.x+=self.direction[0]*self.speed
+        self.rect.y-=self.direction[1]*self.speed
         if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
             self.kill()    
     

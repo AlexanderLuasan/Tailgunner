@@ -26,6 +26,8 @@ def singlePlaneLevel(name,lives):
     other = True
     done=False
     lives = lives
+    tim = 0
+    turretComb = []
     hero = world.player.player(100,constants.screenSize[1],"ThunderboltTurns",[64,64])
     world.players.add(hero)
     for i in hero.getHud():
@@ -44,12 +46,25 @@ def singlePlaneLevel(name,lives):
                     hero.adjustHeading([1,0])
                 elif event.key==274:
                     hero.adjustHeading([0,1])
+                
                 elif event.key == 122:
                     hero.setRoll(-1)
+                    print("left")
                 elif event.key == 120:
                     hero.fireToggle(True)
                 elif event.key == 99:
                     hero.setRoll(1)
+                    print("right")
+                elif event.key == 32:
+                    hero.fireTurret()
+                elif event.key == 119:
+                    turretComb.append(119) 
+                elif event.key == 97:
+                    turretComb.append(97) 
+                elif event.key == 115:
+                    turretComb.append(115) 
+                elif event.key == 100:
+                    turretComb.append(100)
                 else:
                     print(event.key)
             elif event.type == pygame.KEYUP:
@@ -66,14 +81,33 @@ def singlePlaneLevel(name,lives):
                 elif event.key == 120:
                     hero.fireToggle(False)
                 elif event.key == 99:
-                    hero.setRoll(0)            
-    
-        if hero.firing:
-            if hero.fire():
-                s=world.projectile.playershot(hero.rect.center[0],hero.rect.center[1],-math.pi/2)
-                world.attacks.add(s)
-                pygame.mixer.music.load("projectile.wav")
-                pygame.mixer.music.play()
+                    hero.setRoll(0)               
+          
+        if len(turretComb)>0:
+            
+            if 119 in turretComb and 97 in turretComb:
+                hero.setTurretHeading([-1,1]) 
+            elif 97 in turretComb  and 115 in turretComb:
+                hero.setTurretHeading([-1,-1]) 
+            elif 115 in turretComb and 100 in turretComb:
+                hero.setTurretHeading([1,-1]) 
+            elif 100 in turretComb and 119 in turretComb:
+                hero.setTurretHeading([1,1])
+            elif 119 in turretComb:
+                hero.setTurretHeading([0,1]) 
+            elif 97 in turretComb:
+                hero.setTurretHeading([-1,0]) 
+            elif 115 in turretComb:
+                hero.setTurretHeading([0,-1]) 
+            elif 100 in turretComb:
+                hero.setTurretHeading([1,0])
+            else:
+                hero.setTurretHeading([0,0])
+        tim +=1
+        if tim == 60:
+            tim = 0 
+        if tim%10==0:
+            turretComb = []
         #peeter
         count +=1
         if count>60*10:
@@ -102,6 +136,13 @@ def singlePlaneLevel(name,lives):
                     i.kill()
                     hero = world.player.player(action[1][0]-68/2,constants.screenSize[1],"ThunderboltTurns",[68,68])
                     world.players.add(hero)
+                if action[0] == "fire":
+                    for i in action:
+                        if i != "fire":
+                            s = i
+                            world.attacks.add(s)  
+                            pygame.mixer.music.load("projectile.wav")
+                            pygame.mixer.music.play()                    
                     
                     
             

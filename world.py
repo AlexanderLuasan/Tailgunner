@@ -111,11 +111,11 @@ def moveWorld():
     for i in backgrounds:
         i.move() 
     for i in attacks:
-        i.rect.y+=constants.backgroundScroll
+        pass
     for i in enemeys:
         i.rect.y+=constants.backgroundScroll
     for i in enemeyattacks:
-        i.rect.y+=constants.backgroundScroll
+        pass
         
     '''
     new=True

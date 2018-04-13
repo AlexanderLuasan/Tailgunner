@@ -25,7 +25,7 @@ class strafer(pygame.sprite.Sprite):
         gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
         return gsimage
     def crash(self):
-        self.health-=1       
+        self.kill()     
     def __init__(self,x,y,direction,wing=5,side = "both"):
         super().__init__() #24,24
         self.spritesheet =pygame.transform.flip(pygame.image.load(C.getImage("zeroTurn")+".png"),False,True)
