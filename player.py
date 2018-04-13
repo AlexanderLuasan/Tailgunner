@@ -167,7 +167,7 @@ class player(pygame.sprite.Sprite):
                 if self.rollcount<0:
                     self.heading[0]=1.5*self.planeSpeed
                     self.rolling=False
-                    
+                    self.iframes=False
             elif self.rollDir>0:
                 self.image=self.toproll[self.rollcount]
                 self.heading[0] = self.toprollspeed[self.rollcount]
@@ -175,6 +175,7 @@ class player(pygame.sprite.Sprite):
                 if self.rollcount>=len(self.toproll):
                     self.heading[0]=-1.5*self.planeSpeed
                     self.rolling=False
+                    self.iframes=False
     def adjustHeading(self,direction):
         self.headingPrime[0] +=direction[0]
         self.headingPrime[1] +=direction[1]
@@ -190,6 +191,7 @@ class player(pygame.sprite.Sprite):
                 self.rollcount=len(self.toproll)-1            
             if self.airBar.getV()>60:
                 self.rolling=True
+                self.iframes=True
             self.rollDir=self.roll
             
         elif self.heading[0]>=1.5*self.planeSpeed and self.roll>0:
@@ -197,6 +199,7 @@ class player(pygame.sprite.Sprite):
                 self.rollcount=0
             if self.airBar.getV()>60:
                 self.rolling=True
+                self.iframes=True
             self.rollDir=self.roll
     def recuceRoll(self):
         if self.roll>0:
@@ -285,20 +288,21 @@ class player(pygame.sprite.Sprite):
                 self.other=True
         
         #getting hit
-        hits=pygame.sprite.spritecollide(self, attacks, False)
-        for i in hits:
-            dam=i.hit()
-            self.healthBar.adjv(-dam)
-            
-        crash = pygame.sprite.spritecollide(self, enimies, False)
-        for i in crash:
-            temp=i.crash()
-            if temp == "sea":
-                pass
-            else:
-                self.healthBar.adjv(-20)
-        if self.healthBar.currentV<0:
-            return self.death()       
+        if self.iframes == False:
+            hits=pygame.sprite.spritecollide(self, attacks, False)
+            for i in hits:
+                dam=i.hit()
+                self.healthBar.adjv(-dam)
+                
+            crash = pygame.sprite.spritecollide(self, enimies, False)
+            for i in crash:
+                temp=i.crash()
+                if temp == "sea":
+                    pass
+                else:
+                    self.healthBar.adjv(-20)
+            if self.healthBar.currentV<0:
+                return self.death()
         #fireing
         end = ["fire"]
         if self.firing and self.fire():
