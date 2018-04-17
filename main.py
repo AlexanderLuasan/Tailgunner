@@ -1,5 +1,5 @@
 import pygame
-import constants
+import constants as C
 import world
 import random
 import math
@@ -28,7 +28,7 @@ def singlePlaneLevel(name,lives):
     lives = lives
     tim = 0
     turretComb = []
-    hero = world.player.player(100,constants.screenSize[1],"ThunderboltTurns",[64,64])
+    hero = world.player.player(100,C.screenSize[1],"FinalSprite",[64,64])
     world.players.add(hero)
     for i in hero.getHud():
         world.huds.add(i)    
@@ -46,15 +46,12 @@ def singlePlaneLevel(name,lives):
                     hero.adjustHeading([1,0])
                 elif event.key==274:
                     hero.adjustHeading([0,1])
-                
                 elif event.key == 122:
                     hero.setRoll(-1)
-                    print("left")
                 elif event.key == 120:
                     hero.fireToggle(True)
                 elif event.key == 99:
                     hero.setRoll(1)
-                    print("right")
                 elif event.key == 32:
                     hero.fireTurret()
                 elif event.key == 119:
@@ -134,7 +131,7 @@ def singlePlaneLevel(name,lives):
             if action != None:
                 if action[0] == "respawn":
                     i.kill()
-                    hero = world.player.player(action[1][0]-68/2,constants.screenSize[1],"ThunderboltTurns",[68,68])
+                    hero = world.player.player(action[1][0]-68/2,C.screenSize[1],"ThunderboltTurns",[68,68])
                     world.players.add(hero)
                 if action[0] == "fire":
                     for i in action:

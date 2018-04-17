@@ -1,8 +1,11 @@
 import pygame
-import constants
+import constants as C
 import projectile
 
 #draws health bar
+
+#FPS/Playerframes converst calls to 1/60 seconds
+frameMul=C.FPS/C.PlayerFPS 
 
 class hudBar(pygame.sprite.Sprite):
     def __init__(self,x,y,side,maxV,currentV,color):
@@ -23,7 +26,7 @@ class hudBar(pygame.sprite.Sprite):
         pygame.draw.rect(self.image,self.color,(0,0,10,self.currentV))
         self.rect = self.image.get_rect()
         if self.side=="left":
-            self.rect. x = constants.screenSize[0] - self.x - 10
+            self.rect. x = C.screenSize[0] - self.x - 10
         else:
             self.rect. x= self.x
         self.rect.y=self.y 
@@ -56,77 +59,125 @@ class player(pygame.sprite.Sprite):
     
     def __init__(self,x,y,spritesheet,size):
         super().__init__() #(68,68) spaceing(0,0), (0,0)
-        self.size = size       
-        self.spritesheet = pygame.image.load(constants.getImage(spritesheet)+".png")
+        #setting up animation sets
+        self.spritesheet = pygame.image.load(C.getImage(spritesheet)+".png")
         self.animation = []
-        self.animation.append([''])
-        for i in range(12):
-            tower = []
-            for j in range(14):
-                tower.append(self.gs(i*68,j*68,68,68))
-            self.animation.append(tower)
-        for i in range(12):
-            tower = []
-            for j in range(14):
-                tower.append(pygame.transform.flip(self.animation[12-i][j],True,False))
-            self.animation.append(tower)
-        self.toproll = [self.animation[-1][8],self.animation[-1][9],self.animation[-1][10],self.animation[-1][11],self.animation[-1][12],self.animation[-1][13],self.animation[1][13],self.animation[1][12],self.animation[1][11],self.animation[1][10],self.animation[1][9],self.animation[1][8]]
-        self.toprollspeed = [8,8,4,4,0,0,0,0,-4,-4,-8,-8]
-        self.image = self.animation[1][0]
-        self.rect=self.image.get_rect()
+        self.animation.append(['center none'])
+        
+        #what row angle of turret,what tillt every 8 is a set,fire side,fire front,prop up/down,
+        #make main set
+        for turretpos in range(12):#1
+            tiltlist = []
+            for tilt in range(4):#8
+                sidelist = []
+                for side in range(2):#4
+                    frontlist= []
+                    for front in range(2):#2
+                        proplist = []
+                        for prop in range(2):#1
+                            proplist.append(self.gs(turretpos*68,(tilt*8+side*4+front*2+prop)*68,68,68))
+                        frontlist.append(proplist)
+                    sidelist.append(frontlist)
+                tiltlist.append(sidelist)
+            self.animation.append(tiltlist)
+        # make relected set
+        for turretpos in range(12,0,-1):#1
+            tiltlist = []
+            for tilt in range(4):#8
+                sidelist = []
+                for side in range(2):#4
+                    frontlist= []
+                    for front in range(2):#2
+                        proplist = []
+                        for prop in range(2):#1
+                            proplist.append(pygame.transform.flip(self.animation[turretpos][tilt][side][front][prop],True,False))
+                        frontlist.append(proplist)
+                    sidelist.append(frontlist)
+                tiltlist.append(sidelist)
+            self.animation.append(tiltlist)
+            
+        #top roll animation set stage[6] firing[2] prop[2] 
+        #animation for rolling and reflected
+        self.toproll = []
+        for stage in range(3):#stage
+            frontlist = []
+            for front in range(2): #2fire:
+                proplist = []
+                for prop in range(2):
+                    proplist.append(pygame.transform.flip(self.gs(stage*68,(32)*68+(2*front+prop)*68,68,68),True,False))
+                frontlist.append(proplist)
+            self.toproll.append(frontlist)
+        for stage in range(2,-1,-1):#stage
+            frontlist = []
+            for front in range(2): #2fire
+                proplist = []
+                for prop in range(2):
+                    proplist.append(pygame.transform.flip(self.toproll[stage][front][prop],True,False))
+                frontlist.append(proplist)
+            self.toproll.append(frontlist)
+            
+        #rolling varables
+        self.roll = 0 #never used
+        self.rolling = False
+        self.rollingDir = 0 #roll direction
+        self.roolCount = 0 #setps in roll
+        self.toprollspeed = [8,4,0,0,-4,-8]
+        self.tim = 0#conting var for animations
+        
+        
+        #intinal conditions
+        self.image = self.animation[1][0][0][0][0]
+        self.rect=self.image.get_rect()#center at x,y
         self.rect.x=x+self.rect.width/2
         self.rect.y=y+self.rect.height/2
-        self.heading = [0,0]
-        self.headingPrime = [0,0]
-        self.planeSpeed = 8
-        self.accStep = 1
+        self.heading = [0,0] #speed
+        self.headingPrime = [0,0] #acceration
+        self.planeSpeed = 8 #normal planes speed
+        self.accStep = 1 #jerk
         self.turetAngle = 0
         
         
         #turret
+        
         self.turretheading = [0,0]
         self.turretPos = [1,1]
         self.turretPosDict = {(0,-1):(1,1),(-1,-1):(2,11),(-1,0):(4,9),(-1,1):(5,8),(0,1):(6,6),(1,1):(8,5),(1,0):(9,4),(1,-1):(11,2)}
         self.turrefireangle = [-1,-1]
         self.turretfire = False
         #stat bars
-        self.healthBar = hudBar(20,constants.screenSize[1]-100,"right",100,100,(255,0,0))
-        self.gunBar = hudBar(40,constants.screenSize[1]-100,"right",100,100,(255,255,0))
-        self.firecount=0
-        self.firing=False
-        self.airBar = hudBar(60,constants.screenSize[1]-100,"right",100,100,(255,0,255))
+        self.healthBar = hudBar(20,C.screenSize[1]-100,"right",100,100,(255,0,0))
+        self.gunBar = hudBar(40,C.screenSize[1]-100,"right",100,100,(255,255,0))
+        
+        self.airBar = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,0,255))
         self.allbar = [self.airBar,self.gunBar,self.healthBar]
+        #extra frame conter
         self.other = True
-        #dieng
+        #firing variables
+        self.firecount=0
+        self.firing=False        
+        #dieing
         self.deathdelay = 0
         self.dead = False
         self.respawn= False
         self.repsawnTime = 0
         self.iframes=False
-        #rolling
-        self.roll = 0
-        self.rolling = False
-        self.rollingDir = 0
-        self.roolCount = 0
-        self.tim = 0
+        
         
     def getHud(self):
+        #returns all huds
         return (self.healthBar,self.gunBar,self.airBar)
     def fireToggle(self,state):
+        #fire on or off
         self.firing=state
     def setTurretHeading(self,direction):
+        #aim turret
         self.turretheading = (direction[0],direction[1])
         if self.turretheading!=(0,0):
             self.turretPos = self.turretPosDict[self.turretheading]
     def fireTurret(self):
+        #fire an angled single 
         self.turretfire = True
-    def adjTurretHeading(self,direction):
-        
-        
-        self.turretheading=(direction[0],direction[1])
-        
-        if self.turretheading!=(0,0):
-            self.turretPos = self.turretPosDict[self.turretheading]        
+ 
     def fire(self):
         if self.firecount<1:
             if self.gunBar.getV()>5:
@@ -139,7 +190,9 @@ class player(pygame.sprite.Sprite):
                 return False
         else:
             return False
+    
     def death(self):
+        #call and it will handle the explosion
         self.deathdelay-=1
         if self.deathdelay<0:
             center = self.rect.center
@@ -156,35 +209,8 @@ class player(pygame.sprite.Sprite):
             self.respawn= True
             self.iframes=True
             return("respawn",(self.rect.center))
-    def rollOver(self):
-        self.tim +=1
-        if self.tim>4:
-            self.tim=0
-            if self.rollDir<0:
-                self.image=self.toproll[self.rollcount]
-                self.heading[0] = self.toprollspeed[self.rollcount]
-                self.rollcount+=self.rollDir
-                if self.rollcount<0:
-                    self.heading[0]=1.5*self.planeSpeed
-                    self.rolling=False
-                    self.iframes=False
-            elif self.rollDir>0:
-                self.image=self.toproll[self.rollcount]
-                self.heading[0] = self.toprollspeed[self.rollcount]
-                self.rollcount+=self.rollDir
-                if self.rollcount>=len(self.toproll):
-                    self.heading[0]=-1.5*self.planeSpeed
-                    self.rolling=False
-                    self.iframes=False
-    def adjustHeading(self,direction):
-        self.headingPrime[0] +=direction[0]
-        self.headingPrime[1] +=direction[1]
-    def setHeading(self,direction):
-        self.heading = direction
-    def adjustRoll(self,direction):
-        self.roll+=direction
     def setRoll(self,direction):
-        print("selfRoll",direction)
+        #to enter a roll and set tillt
         self.roll = direction
         if self.heading[0]<=-1.5*self.planeSpeed and self.roll<0:
             if self.rolling !=True:
@@ -201,12 +227,77 @@ class player(pygame.sprite.Sprite):
                 self.rolling=True
                 self.iframes=True
             self.rollDir=self.roll
-    def recuceRoll(self):
-        if self.roll>0:
-            self.roll=0
-        elif self.roll<0:
-            self.roll=0
+    def adjustHeading(self,direction):
+        #shift heading
+        self.headingPrime[0] +=direction[0]
+        self.headingPrime[1] +=direction[1]
+    def setHeading(self,direction):#not used but keept
+        self.heading = direction
+    def adjustRoll(self,direction):#not used
+        self.roll+=direction
+    def animate(self):
+        #sets animation
+        #animation #[turretpos][tilt][side][front][prop]
+        self.tim= self.tim + 1
+        if self.tim%4 > 1:
+            prop=1 
+            if self.tim>20:
+                self.tim=0
+        else:
+            prop=0   
+        if self.firing:
+            front = 1
+        else:
+            front = 0
+        if self.turretfire:
+            side = 1
+        else:
+            side = 0        
+        if self.rolling == True:
+            if self.airBar.getV()>1:
+                self.airBar.adjv(-1)
+                
+                if self.tim>5:
+                    self.tim=0
+                    if self.rollDir<0:
+                        self.image=self.toproll[self.rollcount][front][prop]
+                        self.heading[0] = self.toprollspeed[self.rollcount]
+                        self.rollcount+=self.rollDir
+                        if self.rollcount<0:
+                            self.heading[0]=1.5*self.planeSpeed
+                            self.rolling=False
+                            self.iframes=False
+                    elif self.rollDir>0:
+                        self.image=self.toproll[self.rollcount][front][prop]
+                        self.heading[0] = self.toprollspeed[self.rollcount]
+                        self.rollcount+=self.rollDir
+                        if self.rollcount>=len(self.toproll):
+                            self.heading[0]=-1.5*self.planeSpeed
+                            self.rolling=False
+                            self.iframes=False                
+            else:
+                self.rolling=False
+        else:
+            self.airBar.adjv(1)
+            tilt = abs(int(self.heading[0]/4))
+            if self.heading[0]>0:
+                if len(self.animation[-1])>tilt:
+                    if self.turretPos[1]>9 and tilt>1:
+                        self.image = self.animation[-9][tilt][side][front][prop]
+                    else:
+                        self.image = self.animation[-1*self.turretPos[1]][tilt][side][front][prop]
+                    
+            elif self.heading[0]<0:
+                if len(self.animation[1])>tilt:
+                    if self.turretPos[0]>9 and tilt>1:
+                        self.image = self.animation[9][tilt][side][front][prop]
+                    else:                    
+                        self.image = self.animation[1*self.turretPos[0]][tilt][side][front][prop]
+            else:
+                self.image = self.animation[1*self.turretPos[0]][tilt][side][front][prop]
+            
     def update(self,enimies,attacks):
+        #die
         if self.healthBar.currentV<0:
             return self.death()
         #acceeration:
@@ -230,35 +321,9 @@ class player(pygame.sprite.Sprite):
             else:
                 self.heading[1]+=self.accStep
         
-        #animation
-        if self.rolling == True:
-            if self.airBar.getV()>1:
-                self.airBar.adjv(-1)
-                self.rollOver()
-            else:
-                self.rolling=False
-        else:
-            self.airBar.adjv(1)
-            tilt = 2*abs(int(self.heading[0]/4))
-            self.tim+=1    
-            if self.tim%4 > 1:
-                tilt+=1
-            if self.heading[0]>0:
-                if len(self.animation[-1])>tilt:
-                    if tilt>3 and self.turretPos[1] == 11:
-                        self.image = self.animation[-2][tilt]
-                    else:
-                        self.image = self.animation[-1*self.turretPos[1]][tilt]
-            elif self.heading[0]<0:
-                if len(self.animation[1])>tilt:
-                    if tilt>3 and self.turretPos[0] == 11:
-                        self.image = self.animation[2][tilt] 
-                    else:
-                        self.image = self.animation[1*self.turretPos[0]][tilt]
-                  
-            else:
-                self.image = self.animation[1*self.turretPos[0]][tilt%2]
         
+        self.animate()
+    
         
         #speed
         if abs(self.heading[0])==abs(self.heading[1]) and self.heading[1]!=0:
@@ -268,16 +333,17 @@ class player(pygame.sprite.Sprite):
             self.rect.x += self.heading[0]/2
             self.rect.y += self.heading[1]/2
 
-        
+        #prevent moving off edge
         if self.rect.x<0:
             self.rect.x=0
-        elif self.rect.x>constants.screenSize[0]-self.rect.width:
-            self.rect.x=constants.screenSize[0]-self.rect.width
+        elif self.rect.x>C.screenSize[0]-self.rect.width:
+            self.rect.x=C.screenSize[0]-self.rect.width
         if self.rect.y<0:
             self.rect.y=0
-        elif self.rect.y>constants.screenSize[1]-self.rect.height:
-            self.rect.y=constants.screenSize[1]-self.rect.height
+        elif self.rect.y>C.screenSize[1]-self.rect.height:
+            self.rect.y=C.screenSize[1]-self.rect.height
         
+        #shot the gun on a clock
         if self.firecount>0:
             self.firecount-=1
         if self.firing==False and self.gunBar.getV()<self.gunBar.getM():
@@ -306,7 +372,7 @@ class player(pygame.sprite.Sprite):
         #fireing
         end = ["fire"]
         if self.firing and self.fire():
-            s=projectile.playershot(self.rect.center[0],self.rect.center[1],-constants.math.pi/2)
+            s=projectile.playershot(self.rect.center[0],self.rect.center[1],-C.math.pi/2)
             end.append(s)
         if self.turretfire and self.fire():
             if self.turretheading[0] !=0 and self.turretheading[1] !=0 :
