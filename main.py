@@ -131,7 +131,7 @@ def singlePlaneLevel(name,lives):
             if action != None:
                 if action[0] == "respawn":
                     i.kill()
-                    hero = world.player.player(action[1][0]-68/2,C.screenSize[1],"ThunderboltTurns",[68,68])
+                    hero = world.player.player(action[1][0]-68/2,C.screenSize[1],"FinalSprite",[68,68])
                     world.players.add(hero)
                 if action[0] == "fire":
                     for i in action:
