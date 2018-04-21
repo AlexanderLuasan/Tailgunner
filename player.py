@@ -23,7 +23,8 @@ class hudBar(pygame.sprite.Sprite):
     def placebar(self):
         self.image = pygame.Surface([10,self.maxV])
         self.image.fill((255,255,255))
-        pygame.draw.rect(self.image,self.color,(0,0,10,self.currentV))
+        self.rect = self.image.get_rect()
+        pygame.draw.rect(self.image,self.color,(0,self.rect.height-self.currentV,10,self.rect.height,))
         self.rect = self.image.get_rect()
         if self.side=="left":
             self.rect. x = C.screenSize[0] - self.x - 10
@@ -168,7 +169,7 @@ class player(pygame.sprite.Sprite):
         
         #power ups
         self.CurrentFireMethod = "shotgun" #basic shotgun spread rotation
-        self.powerupCount = 3
+        self.powerupCount = 1
         self.powerupangle = 0
         #for rotation
         self.powerupdirection = 1
@@ -195,6 +196,8 @@ class player(pygame.sprite.Sprite):
                     end.append(s)
             except:
                 end.append(shots)
+        elif self.gunBar.getV()<1 and self.CurrentFireMethod != "basic":
+            self.CurrentFireMethod="basic"
         elif self.CurrentFireMethod == "basic":
             self.gunBar.adjv(1)
         if self.turretfire and self.fire():
@@ -209,9 +212,11 @@ class player(pygame.sprite.Sprite):
     
    
     def mainGunShots(self):
+        #produces shotting patterns
         if self.CurrentFireMethod == "basic":
             s=projectile.playershot(self.rect.center[0],self.rect.center[1],self.tempangle)
             self.firecount+=6
+            self.gunBar.adjv(-1)
             return s
         if self.CurrentFireMethod == "rotate":
             s=projectile.scaterShots(self.rect.center[0],self.rect.center[1],-C.math.pi/2+self.powerupangle)
@@ -220,6 +225,7 @@ class player(pygame.sprite.Sprite):
                 self.powerupangle+= self.powerupdirection*ROTATIONANGLE
                 if abs(self.powerupangle)>self.powerupCount*ROTATIONANGLE:
                     self.powerupdirection*=-1
+            self.gunBar.adjv(-2)
             return s
         if self.CurrentFireMethod == "split":
             
@@ -230,6 +236,7 @@ class player(pygame.sprite.Sprite):
                 f= projectile.scaterShots(self.rect.center[0],self.rect.center[1],-C.math.pi/2-angle*ROTATIONANGLE)
                 allshots.append(s)
                 allshots.append(f)
+            self.gunBar.adjv(-self.powerupCount)
             return allshots
         if self.CurrentFireMethod == "shotgun":
             self.firecount+=6
@@ -238,8 +245,11 @@ class player(pygame.sprite.Sprite):
                 angle = C.random.randint(-self.powerupCount,self.powerupCount)
                 s= projectile.scaterShots(self.rect.center[0],self.rect.center[1],-C.math.pi/2+angle*ROTATIONANGLE)
                 allshots.append(s)
+            self.gunBar.adjv(-self.powerupCount)
             return allshots
-            
+    def powerup(self,poweruptype,ammo):
+        self.CurrentFireMethod=poweruptype.lower()
+        self.powerupCount+=1
     def getHud(self):
         #returns all huds
         return (self.healthBar,self.gunBar,self.airBar)
