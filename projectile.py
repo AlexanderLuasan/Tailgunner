@@ -79,7 +79,7 @@ class scaterShots(pygame.sprite.Sprite):
         shape = constants.angleToVector(angle,10)
         self.image=pygame.Surface((abs(shape[0])+1+2*edge,abs(shape[1])+1+2*edge))
         self.image.fill((0,0,0))
-        #self.image.set_colorkey((0,0,0))
+        self.image.set_colorkey((0,0,0))
         self.rect=self.image.get_rect()
         self.rect.center=(x,y)
         #draw a line in the 
@@ -99,14 +99,23 @@ class scaterShots(pygame.sprite.Sprite):
                 pygame.draw.line(self.image,(255,0,0),[0+edge,0+edge],[self.rect.width-edge,self.rect.height-edge],3)
         elif shape[1]==0:
             pygame.draw.line(self.image,[self.rect.width,0],[0,0])
-        self.speed=12
-        self.direction = constants.angleToVector(angle,1)
+        self.speed=1
+        self.direction = constants.angleToVector(angle,12)
     def hit(self):
         self.kill()
         return 1
+    def setheading(self,direction):
+        self.direction = direction
+    def getheading(self):
+        return self.direction
     def update(self):
-        self.rect.x+=self.direction[0]*self.speed
-        self.rect.y+=self.direction[1]*self.speed
+        if self.direction[0]>0:
+            self.rect.x+=int(self.direction[0]+.5)*self.speed
+        elif self.direction[0]<0:
+            self.rect.x+=int(self.direction[0]-.5)*self.speed
+        else:
+            self.rect.x+=self.direction[0]*self.speed
+        self.rect.y+=int(self.direction[1]+.5)*self.speed
         if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
             self.kill()
 
