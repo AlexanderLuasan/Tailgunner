@@ -133,6 +133,8 @@ def singlePlaneLevel(name,lives):
                     i.kill()
                     hero = world.player.player(action[1][0]-68/2,C.screenSize[1],"FinalSprite",[68,68])
                     world.players.add(hero)
+                    for i in hero.getHud():
+                        world.huds.add(i)                     
                 if action[0] == "fire":
                     for i in action:
                         if i != "fire":

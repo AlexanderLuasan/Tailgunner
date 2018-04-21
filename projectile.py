@@ -68,6 +68,49 @@ class playershot(pygame.sprite.Sprite):
         self.rect.y+=self.direction[1]*self.speed
         if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
             self.kill()
+class scaterShots(pygame.sprite.Sprite):
+    def __init__(self,x,y,angle):
+        super().__init__()
+        inAir=True
+        onGround = True
+        size = [10,10]
+        edge = 3
+        
+        shape = constants.angleToVector(angle,10)
+        self.image=pygame.Surface((abs(shape[0])+1+2*edge,abs(shape[1])+1+2*edge))
+        self.image.fill((0,0,0))
+        #self.image.set_colorkey((0,0,0))
+        self.rect=self.image.get_rect()
+        self.rect.center=(x,y)
+        #draw a line in the 
+        if shape[1]<0:
+            if shape[0]<0:
+                pygame.draw.line(self.image,(255,0,0),[0+edge,0+edge],[self.rect.width-edge,self.rect.height-edge],3)
+            elif shape[0]==0:
+                pygame.draw.line(self.image,(255,0,0),[0+edge,0+edge],[0+edge,self.rect.height-edge],3)
+            elif shape[0]>0:
+                pygame.draw.line(self.image,(255,0,0),[0+edge,self.rect.height-edge],[self.rect.width-edge,0+edge],3)
+        if shape[1]>0:
+            if shape[0]<0:
+                pygame.draw.line(self.image,(255,0,0),[self.rect.width+edge,0+edge],[0+edge,self.rect.height-edge],3)
+            elif shape[0]==0:
+                pygame.draw.line(self.image,(255,0,0),[0+edge,0+edge],[0+edge,self.rect.height-edge],3)
+            elif shape[0]>0:
+                pygame.draw.line(self.image,(255,0,0),[0+edge,0+edge],[self.rect.width-edge,self.rect.height-edge],3)
+        elif shape[1]==0:
+            pygame.draw.line(self.image,[self.rect.width,0],[0,0])
+        self.speed=12
+        self.direction = constants.angleToVector(angle,1)
+    def hit(self):
+        self.kill()
+        return 1
+    def update(self):
+        self.rect.x+=self.direction[0]*self.speed
+        self.rect.y+=self.direction[1]*self.speed
+        if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
+            self.kill()
+
+
 class turretshot(pygame.sprite.Sprite):
     def __init__(self,x,y,direction):
         super().__init__()

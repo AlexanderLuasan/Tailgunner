@@ -59,6 +59,9 @@ class player(pygame.sprite.Sprite):
     
     def __init__(self,x,y,spritesheet,size):
         super().__init__() #(68,68) spaceing(0,0), (0,0)
+        
+        
+        self.tempangle = -C.math.pi/2
         #setting up animation sets
         self.spritesheet = pygame.image.load(C.getImage(spritesheet)+".png")
         self.animation = []
@@ -162,7 +165,34 @@ class player(pygame.sprite.Sprite):
         self.repsawnTime = 0
         self.iframes=False
         
-        
+    def update(self,enimies,attacks):
+        if self.healthBar.currentV<0:#die
+            return self.death()
+        self.acceeration()
+        self.animate()
+        self.speed()
+        self.border()#prevent moving off edge
+        self.colisionDetection(enimies,attacks)
+  
+        if self.firecount>0:
+            self.firecount-=1
+
+        end = ["fire"]#fireing
+        if self.firing and self.fire():
+            s=projectile.scaterShots(self.rect.center[0],self.rect.center[1],self.tempangle)
+            self.tempangle+=.1
+            self.firing=False
+            end.append(s)
+        if self.turretfire and self.fire():
+            if self.turretheading[0] !=0 and self.turretheading[1] !=0 :
+                s=projectile.turretshot(self.rect.center[0],self.rect.center[1],[self.turretheading[0]*(2**.5)/2,self.turretheading[1]*(2**.5)/2])
+            else:
+                s=projectile.turretshot(self.rect.center[0],self.rect.center[1],self.turretheading)
+            end.append(s)
+            self.turretfire=False
+        if len(end)>1:
+            return end
+    
     def getHud(self):
         #returns all huds
         return (self.healthBar,self.gunBar,self.airBar)
@@ -208,6 +238,8 @@ class player(pygame.sprite.Sprite):
             self.deathdelay = 10
             self.respawn= True
             self.iframes=True
+            for i in self.allbar:
+                i.kill()
             return("respawn",(self.rect.center))
     def setRoll(self,direction):
         #to enter a roll and set tillt
@@ -295,12 +327,8 @@ class player(pygame.sprite.Sprite):
                         self.image = self.animation[1*self.turretPos[0]][tilt][side][front][prop]
             else:
                 self.image = self.animation[1*self.turretPos[0]][tilt][side][front][prop]
-            
-    def update(self,enimies,attacks):
-        #die
-        if self.healthBar.currentV<0:
-            return self.death()
-        #acceeration:
+    def acceeration(self):
+        #adjust the headingprimes arcoding to keys
         if self.headingPrime[0]>0 and (self.heading[0]<self.planeSpeed or (self.roll>0 and self.heading[0]<1.5*self.planeSpeed)):
             self.heading[0]+=self.accStep
         elif self.headingPrime[0]<0 and (self.heading[0]>-1*self.planeSpeed or (self.roll<0 and self.heading[0]>-1.5*self.planeSpeed)):
@@ -319,21 +347,15 @@ class player(pygame.sprite.Sprite):
             if self.heading[1]>0:
                 self.heading[1]-=self.accStep
             else:
-                self.heading[1]+=self.accStep
-        
-        
-        self.animate()
-    
-        
-        #speed
+                self.heading[1]+=self.accStep      
+    def speed(self):
         if abs(self.heading[0])==abs(self.heading[1]) and self.heading[1]!=0:
             self.rect.x += self.heading[0]/2*2**.5/2
             self.rect.y += self.heading[1]/2*2**.5/2
         else:
             self.rect.x += self.heading[0]/2
-            self.rect.y += self.heading[1]/2
-
-        #prevent moving off edge
+            self.rect.y += self.heading[1]/2        
+    def border(self):
         if self.rect.x<0:
             self.rect.x=0
         elif self.rect.x>C.screenSize[0]-self.rect.width:
@@ -341,19 +363,8 @@ class player(pygame.sprite.Sprite):
         if self.rect.y<0:
             self.rect.y=0
         elif self.rect.y>C.screenSize[1]-self.rect.height:
-            self.rect.y=C.screenSize[1]-self.rect.height
-        
-        #shot the gun on a clock
-        if self.firecount>0:
-            self.firecount-=1
-        if self.firing==False and self.gunBar.getV()<self.gunBar.getM():
-            if self.other == True:
-                self.gunBar.adjv(1)
-                self.other=False
-            else:
-                self.other=True
-        
-        #getting hit
+            self.rect.y=C.screenSize[1]-self.rect.height    
+    def colisionDetection(self,enimies,attacks):
         if self.iframes == False:
             hits=pygame.sprite.spritecollide(self, attacks, False)
             for i in hits:
@@ -367,23 +378,7 @@ class player(pygame.sprite.Sprite):
                     pass
                 else:
                     self.healthBar.adjv(-20)
-            if self.healthBar.currentV<0:
-                return self.death()
-        #fireing
-        end = ["fire"]
-        if self.firing and self.fire():
-            s=projectile.playershot(self.rect.center[0],self.rect.center[1],-C.math.pi/2)
-            end.append(s)
-        if self.turretfire and self.fire():
-            if self.turretheading[0] !=0 and self.turretheading[1] !=0 :
-                s=projectile.turretshot(self.rect.center[0],self.rect.center[1],[self.turretheading[0]*(2**.5)/2,self.turretheading[1]*(2**.5)/2])
-            else:
-                s=projectile.turretshot(self.rect.center[0],self.rect.center[1],self.turretheading)
-            end.append(s)
-            self.turretfire=False
-        if len(end)>1:
-            return end
-
+    
 
 
         
