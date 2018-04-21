@@ -36,9 +36,10 @@ def vectorToAngle(vector):
     if the x component of a the vector has a magnitude of less then 10, return pi/2.
     else, return the angle in radians
     """
-    if abs(vector[0])-10<0:
+    if abs(vector[0])-.001<0:
         return math.pi/2
     if vector[0]>0:
         return math.atan(vector[1]/vector[0])
     else:
         return round(math.pi-math.atan(vector[1]/-vector[0]),3)
+    

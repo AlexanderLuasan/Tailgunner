@@ -16,6 +16,102 @@ def closest(me,possible):
             distance = ((me.rect.center[0]+i.rect.center[0])**2+(me.rect.center[1]+i.rect.center[1])**2)**.5
             end=i
     return end
+
+
+class Real_looper(pygame.sprite.Sprite):
+    def gs(self,x,y,dx,dy):
+        gsimage = pygame.Surface([dx, dy])
+        gsimage.fill((234,154,45))
+        gsimage.set_colorkey((234,154,45))
+        gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
+        return gsimage
+    
+    def crash(self):
+        self.kill()
+    
+    def __init__(self,x,y):
+        super().__init__()
+        self.has_looped = False
+        self.health = 10
+        self.spritesheet = pygame.image.load("greenplane"+".png")
+        self.animation = [self.gs(18,0,64,72),self.gs(114,0,64,72),self.gs(210,0,64,72),self.gs(298,0,64,72)]
+        self.image = self.animation[0]   
+        self.heading = [0,.5]
+        self.acceleration_vector = [0,0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x + self.rect.width/2
+        self.rect.y= y + self.rect.height/2
+        self.tim = 0
+    
+    def evasive_manuvers(self):
+        """semi-randomly adjusts the acceleration vector, in such a way that will typically keep the plane onscreen"""
+        
+        
+        temp = (C.screenSize[0]/2- self.rect.x) #negative when x is to the right of the center, positive if to the left
+        temp2 = C.random.randint(0,C.screenSize[0]) - C.screenSize[0]/2 # random num between -1/2 screen size, and positive 1/2 screensize
+        temp3 = temp2+ .1*temp
+
+        
+        if temp3 > 0:
+            self.acceleration_vector[0] += .01
+        else:
+            self.acceleration_vector[0] -= .01
+        
+        if self.acceleration_vector[0] > .1:
+            self.acceleration_vector[0] = .1
+        elif self.acceleration_vector[0] < -.1:
+            self.acceleration_vector[0] = -.1
+            
+            
+        
+
+    
+    def update_image(self):
+        """will update the image as apropriate to the current heading"""
+        image_dict = {} # should be a dict in the form x heading, appropriate animation index basic idea is that it will find the the key with the least difference from the current x heading, and make that value self.image. Will complete when i get the sprite
+        
+    def loop_de_loop(self):
+        """should change self.acceleration to be perpendicular self.heading, causing it to do a loop additionally, should transform all of the animation rotate all the animation things bit by bit"""
+        self.acceleration_vector = C.angleToVector(C.vectorToAngle(self.heading) - C.math.pi/2, .01)
+        
+        if self.heading[1] < -.5:
+            self.image = pygame.transform.flip(self.image, True, True)
+            self.has_looped = True
+            print("switch")
+        
+        #self.image = pygame.transform.rotate(self.image, C.math.pi)
+
+    
+    def update(self,playerlist,attacklist):
+        """moves the player, checks if they've been hit, checks if they've died"""
+        
+        self.rect.x+=self.heading[0]
+        self.rect.y+=self.heading[1]
+        self.heading[0] += self.acceleration_vector[0] 
+        self.heading[1] += self.acceleration_vector[1]
+        
+        if self.heading[0] > 2:
+            self.heading[0] = 2
+        elif self.heading[0] < -2:
+            self.heading[0] = -2
+            
+
+        hits=pygame.sprite.spritecollide(self, attacklist, False)
+        for i in hits:
+            temp=i.hit()
+            self.health-=temp
+        if self.health<=0:
+            self.kill()
+        if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
+            self.kill()
+        
+
+        self.evasive_manuvers()
+
+        if self.rect.y > C.screenSize[1]-300 and not self.has_looped:
+            self.loop_de_loop()
+
+
  
 class strafer(pygame.sprite.Sprite):
     def gs(self,x,y,dx,dy):
@@ -51,6 +147,7 @@ class strafer(pygame.sprite.Sprite):
         self.fire = 0
         self.wings = wing-1
         self.side = side
+    
     def update(self,playerlist,attacklist):
               
         if self.rect.y<100:
