@@ -18,6 +18,12 @@ def closest(me,possible):
     return end
 
 class Test_plane(pygame.sprite.Sprite):
+    def gs(self,x,y,dx,dy):
+        gsimage = pygame.Surface([dx, dy])
+        gsimage.fill((234,154,45))
+        gsimage.set_colorkey((234,154,45))
+        gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
+        return gsimage
     def __init__(self,x,y):
         super().__init__()
         self.has_looped = False
