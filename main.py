@@ -1,14 +1,11 @@
 import pygame
 import constants as C
 import world
-import random
-import math
 pygame.init()
-
 clock = pygame.time.Clock()
 world.fillBackground()
 
- 
+
 
 '''
 load
@@ -31,7 +28,7 @@ def singlePlaneLevel(name,lives):
     hero = world.player.player(100,C.screenSize[1],"FinalSprite",[64,64])
     world.players.add(hero)
     for i in hero.getHud():
-        world.huds.add(i)    
+        world.huds.add(i)
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -55,11 +52,11 @@ def singlePlaneLevel(name,lives):
                 elif event.key == 32:
                     hero.fireTurret()
                 elif event.key == 119:
-                    turretComb.append(119) 
+                    turretComb.append(119)
                 elif event.key == 97:
-                    turretComb.append(97) 
+                    turretComb.append(97)
                 elif event.key == 115:
-                    turretComb.append(115) 
+                    turretComb.append(115)
                 elif event.key == 100:
                     turretComb.append(100)
                 elif event.key == 113:
@@ -74,37 +71,37 @@ def singlePlaneLevel(name,lives):
                 elif event.key==275:
                     hero.adjustHeading([-1,0])
                 elif event.key==274:
-                    hero.adjustHeading([0,-1]) 
+                    hero.adjustHeading([0,-1])
                 elif event.key == 122:
                     hero.setRoll(0)
                 elif event.key == 120:
                     hero.fireToggle(False)
                 elif event.key == 99:
-                    hero.setRoll(0)               
-          
+                    hero.setRoll(0)
+
         if len(turretComb)>0:
-            
+
             if 119 in turretComb and 97 in turretComb:
-                hero.setTurretHeading([-1,1]) 
+                hero.setTurretHeading([-1,1])
             elif 97 in turretComb  and 115 in turretComb:
-                hero.setTurretHeading([-1,-1]) 
+                hero.setTurretHeading([-1,-1])
             elif 115 in turretComb and 100 in turretComb:
-                hero.setTurretHeading([1,-1]) 
+                hero.setTurretHeading([1,-1])
             elif 100 in turretComb and 119 in turretComb:
                 hero.setTurretHeading([1,1])
             elif 119 in turretComb:
-                hero.setTurretHeading([0,1]) 
+                hero.setTurretHeading([0,1])
             elif 97 in turretComb:
-                hero.setTurretHeading([-1,0]) 
+                hero.setTurretHeading([-1,0])
             elif 115 in turretComb:
-                hero.setTurretHeading([0,-1]) 
+                hero.setTurretHeading([0,-1])
             elif 100 in turretComb:
                 hero.setTurretHeading([1,0])
             else:
                 hero.setTurretHeading([0,0])
         tim +=1
         if tim == 60:
-            tim = 0 
+            tim = 0
         if tim%10==0:
             turretComb = []
         #peeter
@@ -121,11 +118,11 @@ def singlePlaneLevel(name,lives):
                     for i in range(len(action)):
                         if i != 0:
                             world.enemeys.add(action[i])
-        
-        
-    
+
+
+
         world.moveWorld()
-    
+
         for i in world.enemeyattacks:
             i.update()
         for i in world.players:
@@ -136,29 +133,29 @@ def singlePlaneLevel(name,lives):
                     hero = world.player.player(action[1][0]-68/2,C.screenSize[1],"FinalSprite",[68,68])
                     world.players.add(hero)
                     for i in hero.getHud():
-                        world.huds.add(i)                     
+                        world.huds.add(i)
                 if action[0] == "fire":
                     for i in action:
                         if i != "fire":
                             s = i
-                            world.attacks.add(s)  
+                            world.attacks.add(s)
                             pygame.mixer.music.load("projectile.wav")
-                            pygame.mixer.music.play()                    
-                    
-                    
-            
+                            pygame.mixer.music.play()
+
+
+
         for i in world.attacks:
             i.update()
-            
+
         if other==True:
             world.drawall()
             other=False
         else:
-            other=True       
+            other=True
         clock.tick(60)
-        
-        
-        
+
+
+
 #orginization
 singlePlaneLevel("temp",3)
 print("done")
