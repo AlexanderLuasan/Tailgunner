@@ -71,11 +71,10 @@ class Real_looper(pygame.sprite.Sprite):
         image_dict = {} # should be a dict in the form x heading, appropriate animation index basic idea is that it will find the the key with the least difference from the current x heading, and make that value self.image. Will complete when i get the sprite
 
     def loop_de_loop(self):
-        """should change self.acceleration to be perpendicular self.heading, causing it to do a loop additionally, should transform all of the animation rotate all the animation things bit by bit"""
-        #self.acceleration_vector = C.angleToVector(C.vectorToAngle(self.heading) - C.math.pi/2, .01)
+        """makes y accel negative until a certain y velocity is hit, then sets self.has_looped to true"""
         self.acceleration_vector[1] = - .025
         self.acceleration_vector[0] = -self.heading[0]/2
-        #print("loop")
+
         print(self.heading[1])
 
         if self.heading[1] < -3.25:
@@ -85,9 +84,11 @@ class Real_looper(pygame.sprite.Sprite):
             self.acceleration_vector[1] = 0
             print("switch")
 
-
-
+    def real_loop_de_loop():
+        """should change self.acceleration to be perpendicular self.heading, causing it to do a loop additionally, should transform all of the animation rotate all the animation things bit by bit"""
+        #self.acceleration_vector = C.angleToVector(C.vectorToAngle(self.heading) - C.math.pi/2, .01)
         #self.image = pygame.transform.rotate(self.image, C.math.pi)
+        pass
 
 
     def update(self,playerlist,attacklist):
