@@ -41,7 +41,7 @@ class Real_looper(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x + self.rect.width/2
         self.rect.y= y + self.rect.height/2
-        self.tim = 0
+        self.fire = 0
 
     def evasive_manuvers(self):
         """semi-randomly adjusts the acceleration vector, in such a way that will typically keep the plane onscreen"""
@@ -75,17 +75,17 @@ class Real_looper(pygame.sprite.Sprite):
         self.acceleration_vector[1] = - .025
         self.acceleration_vector[0] = -self.heading[0]/2
 
-        print(self.heading[1])
+        #print(self.heading[1])
 
         if self.heading[1] < -3.25:
             self.image = pygame.transform.flip(self.image, True, True)
             self.heading[1] = -3.25
             self.has_looped = True
             self.acceleration_vector[1] = 0
-            print("switch")
+            #print("switch")
 
     def real_loop_de_loop():
-        """should change self.acceleration to be perpendicular self.heading, causing it to do a loop additionally, should transform all of the animation rotate all the animation things bit by bit"""
+        """not currently being used! should change self.acceleration to be perpendicular self.heading, causing it to do a loop additionally, should transform all of the animation rotate all the animation things bit by bit"""
         #self.acceleration_vector = C.angleToVector(C.vectorToAngle(self.heading) - C.math.pi/2, .01)
         #self.image = pygame.transform.rotate(self.image, C.math.pi)
         pass
@@ -110,14 +110,24 @@ class Real_looper(pygame.sprite.Sprite):
             self.heading[0] = -2
 
 
+        #did I get hit?
         hits=pygame.sprite.spritecollide(self, attacklist, False)
         for i in hits:
             temp=i.hit()
             self.health-=temp
         if self.health<=0:
             self.kill()
+
+        #am I offscreen?
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
             self.kill()
+
+        #should I shoot?
+        target = closest(self,playerlist)
+        self.fire +=1
+        if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
+            self.fire = 0
+            return("ea",projectile.zeroShot(self.rect.center[0],self.rect.bottom,C.math.pi/2))
 
 
 
