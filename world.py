@@ -79,8 +79,7 @@ class detector(pygame.sprite.Sprite):
         self.rect.center = (constants.screenSize[0]/2,0)
         
         
-d = detector()
-temp.add(d)        
+      
     
 def spawn():
     e=enemies.strafer([100,constants.screenSize[0]-100],-10,constants.math.pi/2)
