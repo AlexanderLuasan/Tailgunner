@@ -271,7 +271,14 @@ class looper2(pygame.sprite.Sprite):
 #summons next of kin
 #stright
 #circle
-class circlePlane(pygame.sprite.Sprite):
+SPIN_SPEED = 5
+SPIN_HEALTH = 1
+SPIN_DIVISIONS = 32
+SPIN_DELAY = -20
+SPIN_BUFFER = 20
+SPIN_COUNT = 3
+
+class SpinPlane(pygame.sprite.Sprite):
     def __init__(self,x,y,direction=1,wing=5,side = "both"):
         super().__init__()#50,38
         #make animation and angle -pi/2 is up 
@@ -281,46 +288,95 @@ class circlePlane(pygame.sprite.Sprite):
         #-90 -> 270 possible angles 8 possible angles
         self.animationAngles = []
         self.animations = []
-        self.divisions = 32
-        divisions=self.divisions
-        units = 2*C.math.pi/self.divisions
+        divisions=SPIN_DIVISIONS
+        units = 2*C.math.pi/SPIN_DIVISIONS
         for i in range(0,divisions):
             self.animationAngles.append((-C.math.pi/2)+i*units)
             self.animations.append([pygame.transform.rotate(origImage[0],360 - (i*units*180/C.math.pi)),pygame.transform.rotate(origImage[1],360 - (i*units*180/C.math.pi))])
+        self.propCount = 0  
+        #an inital setting
         self.position = 0
         self.image = self.animations[self.position][0]
-
         self.rect = self.image.get_rect()
-        self.rect.x=x
-        self.rect.y=y+self.rect.height/2
-        self.health=1
-
-    def loop(self):
-        if self.frame>=len(self.animation):
-            return None
-        self.image=self.animation[self.frame]
-        self.frame+=1
-        if self.frame == 2:
-            self.holdh = self.heading[1]
-            self.heading[1]= 0
-        elif self.frame == 3:
-            self.heading[1] = -self.holdh
-    def crash(self):
-        self.health-=1
-
+        self.rect.x=x-self.rect.width/2
+        self.rect.y=y-self.rect.height/2
+        self.heading = C.angleToVector(self.animationAngles[self.position],SPIN_SPEED)
+        
+        self.spinDirection = direction
+        self.tim = 0 #miain counter
+        self.mode = "stright" #stright or circle or oval
+        
+        self.health=SPIN_HEALTH
+        
+        
+            
+            
+        if self.rect.right<0:
+            self.setSpin(int(SPIN_DIVISIONS/4))
+            self.rect.right = -SPIN_BUFFER
+            self.direction = "right"
+            self.spinDivision = int(C.screenSize[0]/(SPIN_COUNT+1))
+        elif self.rect.left>C.screenSize[0]:
+            self.setSpin(3*int(SPIN_DIVISIONS/4))
+            self.rect.left = C.screenSize[0] 
+            self.direction = "left"
+            self.spinDivision = (SPIN_COUNT)*int(C.screenSize[0]/(SPIN_COUNT+1))
+        self.rect = self.image.get_rect()
+        self.rect.x=x-self.rect.width/2
+        self.rect.y=y-self.rect.height/2
+        
+        self.delayCount = SPIN_DELAY
+        if wing>0:
+            self.delayCount*=-1
+            if side=="both":
+                self.kin = SpinPlane(self.rect.x+self.rect.width/2,self.rect.y+self.rect.height/2,direction*-1,wing-1,"both")
+            else:
+                self.kin = SpinPlane(self.rect.x+self.rect.width/2,self.rect.y+self.rect.height/2,direction,wing-1,"left")
+            
     def update(self,playerlist,attacklist):
         self.rect.x+=self.heading[0]
         self.rect.y+=self.heading[1]
+        self.rect.y-=C.backgroundScroll
+        
+        self.tim +=1
+        if self.propCount>1:
+            self.image = self.animations[self.position][0]
+            if self.propCount>4:
+                self.image = self.animations[self.position][1]
+                self.propCount=0
+        #mode switch
+        if self.mode == "circle":
+            if self.tim%5 == 0:
+                self.spin(self.spinDirection)
+            if self.tim > (SPIN_DIVISIONS)*5:
+                self.mode = "stright"
+                self.tim = 0
+        elif self.mode == "stright":
+            if self.direction == "right":
+                if self.rect.x+self.rect.width > self.spinDivision:
+                    self.spinDivision+=int(C.screenSize[0]/(SPIN_COUNT+1))
+                    if self.spinDivision<C.screenSize[0]+SPIN_BUFFER:   
+                        self.mode = "circle"
+                    self.tim = 0
+            if self.direction == "left":
+                if self.rect.x+self.rect.width < self.spinDivision:
+                    self.spinDivision-=int(C.screenSize[0]/(SPIN_COUNT+1))
+                    if self.spinDivision>0-SPIN_BUFFER:
+                        self.mode = "circle"
+                    self.tim = 0
+                
+        elif self.mode == "oval":#unused
+            if self.heading[0]<=0 and self.direction == "left":
+                if self.tim%10 == 0:
+                    self.spin(self.spinDirection)
+            elif self.heading[0]>=0 and self.direction == "right":
+                if self.tim%10 == 0:
+                    self.spin(self.spinDirection)
+            elif self.tim%5 == 0:
+                self.spin(self.spinDirection)
 
-        self.tim+=1
-        if self.rect.y>500:
-            self.looping = True
-        if self.looping == True and self.tim>20:
-            self.loop()
-            self.tim=0
-
-
-
+            
+        #hits
         hits=pygame.sprite.spritecollide(self, attacklist, False)
         for i in hits:
             temp=i.hit()
@@ -329,6 +385,44 @@ class circlePlane(pygame.sprite.Sprite):
             self.kill()
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
             self.kill()
+        if self.delayCount>0:
+            self.delayCount-=1
+            if self.delayCount<1:
+                return ("ep",self.kin)
+    def gs(self,x,y,dx,dy):
+        gsimage = pygame.Surface([dx, dy])
+        gsimage.fill((234,154,45))
+        gsimage.set_colorkey((234,154,45))
+        gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
+        return gsimage
+    def crash(self):
+        self.kill()
+    def setSpin(self,position):
+        self.position=position
+        self.spin(0)
+    def spin(self,direction):
+        #adjust position
+        self.position = (self.position+direction)
+        if self.position>len(self.animations)-1:
+            self.position=0
+        elif self.position<0:
+            self.position=len(self.animations)-1
+        #remember center
+        currentcenter = (self.rect.x+self.rect.width,self.rect.y+self.rect.height)
+        self.image = self.animations[self.position][0]#changeimage
+        self.rect = self.image.get_rect()#new rect and center
+        self.rect.x= currentcenter[0]-self.rect.width
+        self.rect.y=currentcenter[1]-self.rect.height
+        self.heading = C.angleToVector(self.animationAngles[self.position],SPIN_SPEED)
+        #round heading to int
+        if self.heading[0]>0:
+            self.heading[0] = int(self.heading[0]+.5)
+        elif self.heading[0]<0:
+            self.heading[0] = int(self.heading[0]-.5)
+        if self.heading[1]>0:
+            self.heading[1] = int(self.heading[1]+.5)
+        elif self.heading[1]<0:
+            self.heading[1] = int(self.heading[1]-.5)
 
 
 
