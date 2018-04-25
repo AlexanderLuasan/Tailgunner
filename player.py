@@ -4,9 +4,31 @@ import projectile
 
 #draws health bar
 ROTATIONANGLE = .1
-#FPS/Playerframes converst calls to 1/60 seconds
+#FPS/Playerframes converst calls to 1/60 sonds
 frameMul=C.FPS/C.PlayerFPS 
+class counter(pygame.sprite.Sprite):
+    def __init__(self,side):
+        super().__init__()
+        self.side =side
+        self.v = 0
+        self.place()
+    def place(self):
+        basicfont = pygame.font.SysFont(None, 48)
+        self.image = basicfont.render(str(self.v), True, (255, 0, 0), (255, 255, 255))
+        self.rect = self.image.get_rect()
+        if self.side =="right":
+            self.rect.x=0
+        else:
+            self.rect.x=C.screenSize[0]-self.rect.width
+        self.rect.y=100-self.rect.height
 
+    def setv(num):
+        self.v=num
+        self.place()
+    def adjv(num):
+        self.v+=num
+        self.place()
+        
 class hudBar(pygame.sprite.Sprite):
     def __init__(self,x,y,side,maxV,currentV,color):
         super().__init__()
@@ -148,12 +170,13 @@ class player(pygame.sprite.Sprite):
         self.turretPosDict = {(0,-1):(1,1),(-1,-1):(2,11),(-1,0):(4,9),(-1,1):(5,8),(0,1):(6,6),(1,1):(8,5),(1,0):(9,4),(1,-1):(11,2)}
         self.turrefireangle = [-1,-1]
         self.turretfire = False
+        
         #stat bars
         self.healthBar = hudBar(20,C.screenSize[1]-100,"right",100,100,(255,0,0))
         self.gunBar = hudBar(40,C.screenSize[1]-100,"right",100,100,(255,255,0))
-        
+        self.ammmoDisplay = counter("right")
         self.airBar = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,0,255))
-        self.allbar = [self.airBar,self.gunBar,self.healthBar]
+        self.allbar = [self.airBar,self.gunBar,self.healthBar,self.ammmoDisplay]
         #extra frame conter
         self.other = True
         #firing variables
@@ -221,10 +244,10 @@ class player(pygame.sprite.Sprite):
         if self.CurrentFireMethod == "rotate":
             s=projectile.scaterShots(self.rect.center[0],self.rect.center[1],-C.math.pi/2+self.powerupangle)
             self.firecount+=6
-            if self.powerupCount>1:
+            self.powerupangle+= self.powerupdirection*ROTATIONANGLE
+            if abs(self.powerupangle)>abs(self.powerupCount*ROTATIONANGLE):
+                self.powerupdirection*=-1
                 self.powerupangle+= self.powerupdirection*ROTATIONANGLE
-                if abs(self.powerupangle)>self.powerupCount*ROTATIONANGLE:
-                    self.powerupdirection*=-1
             self.gunBar.adjv(-2)
             return s
         if self.CurrentFireMethod == "split":

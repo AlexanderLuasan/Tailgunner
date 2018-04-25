@@ -5,6 +5,12 @@ import projectile
 
 
 
+
+
+ 
+SPINSPEED = 3
+
+
 def closest(me,possible):
     end=None
     distance=None
@@ -245,6 +251,7 @@ class strafer(pygame.sprite.Sprite):
 
 
 
+
 class looper2(pygame.sprite.Sprite):
     def gs(self,x,y,dx,dy):
         gsimage = pygame.Surface([dx, dy])
@@ -257,14 +264,37 @@ class looper2(pygame.sprite.Sprite):
         self.spritesheet = pygame.image.load("greenplane"+".png")
         self.animation = [self.gs(18,0,64,72),self.gs(114,0,64,72),self.gs(210,0,64,72),self.gs(298,0,64,72)]
         self.image=self.animation[0]
+
+#flies in a circle
+
+#flies in given direction untill on screen
+#summons next of kin
+#stright
+#circle
+class circlePlane(pygame.sprite.Sprite):
+    def __init__(self,x,y,direction=1,wing=5,side = "both"):
+        super().__init__()#50,38
+        #make animation and angle -pi/2 is up 
+        #set original position off screen circle to the right with tails
+        self.spritesheet = pygame.image.load(C.getImage("rotatorplane")+".png")
+        origImage = [self.gs(0,38*2,50,38),self.gs(50,38*2,50,38)]
+        #-90 -> 270 possible angles 8 possible angles
+        self.animationAngles = []
+        self.animations = []
+        self.divisions = 32
+        divisions=self.divisions
+        units = 2*C.math.pi/self.divisions
+        for i in range(0,divisions):
+            self.animationAngles.append((-C.math.pi/2)+i*units)
+            self.animations.append([pygame.transform.rotate(origImage[0],360 - (i*units*180/C.math.pi)),pygame.transform.rotate(origImage[1],360 - (i*units*180/C.math.pi))])
+        self.position = 0
+        self.image = self.animations[self.position][0]
+
         self.rect = self.image.get_rect()
-        self.rect.x = x + self.rect.width/2
-        self.rect.y= y + self.rect.height/2
-        self.frame = 0
-        self.looping = False
-        self.tim = 0
-        self.heading = C.angleToVector(direction,3)
+        self.rect.x=x
+        self.rect.y=y+self.rect.height/2
         self.health=1
+
     def loop(self):
         if self.frame>=len(self.animation):
             return None
@@ -440,9 +470,65 @@ class strafe(pygame.sprite.Sprite):
         self.heading=C.angleToVector(direction,2)
         self.health=2
         self.tim = 0
+        self.heading = C.angleToVector(self.animationAngles[self.position],SPINSPEED)
+        self.spinDirection = direction
+        self.tim = 0 #miain counter
+        self.mode = "stright" #stright or circle or oval
+        self.propCount = 0
+        
+            
+            
+        if self.rect.right<0:
+            self.setSpin(int(self.divisions/4))
+            self.rect.right = -10
+            self.direction = "right"
+        elif self.rect.left>C.screenSize[0]:
+            self.setSpin(3*int(self.divisions/4))
+            self.rect.left = C.screenSize[0]+10    
+            self.direction = "left"
+            
+        self.delayCount = -30
+        if wing>0:
+            self.delayCount*=-1
+            if side=="both":
+                self.kin = circlePlane(self.rect.x,self.rect.y-self.rect.height/2,direction*-1,wing-1,"both")
+            else:
+                self.kin = circlePlane(self.rect.x,self.rect.y-self.rect.height/2,direction,wing-1,"None"
     def update(self,playerlist,attacklist):
         self.rect.x+=self.heading[0]
         self.rect.y+=self.heading[1]
+        self.rect.y-=C.backgroundScroll
+        
+        self.tim +=1
+        if self.propCount>1:
+            self.image = self.animations[self.position][0]
+            if self.propCount>4:
+                self.image = self.animations[self.position][1]
+                self.propCount=0
+        #mode switch
+        if self.mode == "circle":
+            if self.tim%5 == 0:
+                self.spin(self.spinDirection)
+            if self.tim > (self.divisions)*5:
+                self.mode = "stright"
+                self.tim = 0
+        elif self.mode == "stright":
+            if self.tim > 60:
+                self.mode = "circle"
+                self.tim = 0
+                
+        elif self.mode == "oval":#unused
+            if self.heading[0]<=0 and self.direction == "left":
+                if self.tim%10 == 0:
+                    self.spin(self.spinDirection)
+            elif self.heading[0]>=0 and self.direction == "right":
+                if self.tim%10 == 0:
+                    self.spin(self.spinDirection)
+            elif self.tim%5 == 0:
+                self.spin(self.spinDirection)
+
+            
+        #hits
         hits=pygame.sprite.spritecollide(self, attacklist, False)
         for i in hits:
             temp=i.hit()
@@ -473,6 +559,10 @@ class strafe(pygame.sprite.Sprite):
 
         return None
 class boat(pygame.sprite.Sprite):
+        if self.delayCount>0:
+            self.delayCount-=1
+            if self.delayCount<1:
+                return ("ep",self.kin)
     def gs(self,x,y,dx,dy):
         gsimage = pygame.Surface([dx, dy])
         gsimage.fill((234,154,45))
@@ -480,6 +570,7 @@ class boat(pygame.sprite.Sprite):
         gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
         return gsimage
     def crash(self):
+
         return "sea"
     def __init__(self,x,y,direction):
         super().__init__()
@@ -575,3 +666,33 @@ class looper(pygame.sprite.Sprite):
             for i in playerlist:
                 return ("ea",self.shoot(i.rect.center))
         return None
+        self.kill()
+    def setSpin(self,position):
+        self.position=position
+        self.spin(0)
+    def spin(self,direction):
+        #adjust position
+        self.position = (self.position+direction)
+        if self.position>len(self.animations)-1:
+            self.position=0
+        elif self.position<0:
+            self.position=len(self.animations)-1
+        #remember center
+        currentcenter = (self.rect.x+self.rect.width,self.rect.y+self.rect.height)
+        self.image = self.animations[self.position][0]#changeimage
+        self.rect = self.image.get_rect()#new rect and center
+        self.rect.x= currentcenter[0]-self.rect.width
+        self.rect.y=currentcenter[1]-self.rect.height
+        self.heading = C.angleToVector(self.animationAngles[self.position],SPINSPEED)
+        #round heading to int
+        if self.heading[0]>0:
+            self.heading[0] = int(self.heading[0]+.5)
+        elif self.heading[0]<0:
+            self.heading[0] = int(self.heading[0]-.5)
+        if self.heading[1]>0:
+            self.heading[1] = int(self.heading[1]+.5)
+        elif self.heading[1]<0:
+            self.heading[1] = int(self.heading[1]-.5)
+        
+    
+        
