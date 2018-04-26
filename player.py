@@ -2,6 +2,8 @@ import pygame
 import constants as C
 import projectile
 
+
+COOP = True
 #draws health bar
 ROTATIONANGLE = .1
 #FPS/Playerframes converst calls to 1/60 sonds
@@ -49,9 +51,9 @@ class hudBar(pygame.sprite.Sprite):
         pygame.draw.rect(self.image,self.color,(0,self.rect.height-self.currentV,10,self.rect.height,))
         self.rect = self.image.get_rect()
         if self.side=="left":
-            self.rect. x = C.screenSize[0] - self.x - 10
+            self.rect.x = C.screenSize[0] - self.x - 10
         else:
-            self.rect. x= self.x
+            self.rect.x = self.x
         self.rect.y=self.y 
         
     def setv(self,cV):
@@ -171,12 +173,24 @@ class player(pygame.sprite.Sprite):
         self.turrefireangle = [-1,-1]
         self.turretfire = False
         
+        
         #stat bars
         self.healthBar = hudBar(20,C.screenSize[1]-100,"right",100,100,(255,0,0))
         self.gunBar = hudBar(40,C.screenSize[1]-100,"right",100,100,(255,255,0))
         self.ammmoDisplay = counter("right")
         self.airBar = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,0,255))
-        self.allbar = [self.airBar,self.gunBar,self.healthBar,self.ammmoDisplay]
+        self.allbar = [self.airBar,self.gunBar,self.healthBar]
+        #coop bars
+        if COOP==True:
+            self.ammo1 = hudBar(40,C.screenSize[1]-100,"left",100,100,(255,255,0))#left
+            self.allbar.append(self.ammo1)
+            self.ammo2 = hudBar(40,C.screenSize[1]-100,"left",100,100,(255,255,0))#middle
+            self.allbar.append(self.ammo2)
+            self.ammo3 = hudBar(40,C.screenSize[1]-100,"left",100,100,(255,255,0))#right
+            self.allbar.append(self.ammo3)       
+            self.ammonames = ["basic","shotgun","spread","rotation"]
+            self.ammocounts = [0,0,0,0]
+            
         #extra frame conter
         self.other = True
         #firing variables
@@ -191,12 +205,13 @@ class player(pygame.sprite.Sprite):
         
         
         #power ups
-        self.CurrentFireMethod = "shotgun" #basic shotgun spread rotation
-        self.powerupCount = 1
+        self.CurrentFireMethod = "rotate" #basic shotgun spread rotation
+        self.turretFireMode = "rotate"
+        self.powerupCount = 3
         self.powerupangle = 0
         #for rotation
         self.powerupdirection = 1
-        
+      
         
     def update(self,enimies,attacks):
         if self.healthBar.currentV<0:#die
@@ -212,7 +227,7 @@ class player(pygame.sprite.Sprite):
 
         end = ["fire"]#fireing
         if self.firing and self.gunBar.getV()>0:
-            shots=self.mainGunShots()
+            shots=self.makeSpecialShots(self.CurrentFireMethod,-C.math.pi/2)
             self.firing=False
             try:
                 for s in shots:
@@ -223,59 +238,63 @@ class player(pygame.sprite.Sprite):
             self.CurrentFireMethod="basic"
         elif self.CurrentFireMethod == "basic":
             self.gunBar.adjv(1)
-        if self.turretfire and self.fire():
-            if self.turretheading[0] !=0 and self.turretheading[1] !=0 :
-                s=projectile.turretshot(self.rect.center[0],self.rect.center[1],[self.turretheading[0]*(2**.5)/2,self.turretheading[1]*(2**.5)/2])
+        if self.turretfire and self.ammo1.getV()>0:
+            if self.turretheading[0]!=0:
+                shots=self.makeSpecialShots(self.CurrentFireMethod,C.vectorToAngle([self.turretheading[0],self.turretheading[1]*-1]))
             else:
-                s=projectile.turretshot(self.rect.center[0],self.rect.center[1],self.turretheading)
-            end.append(s)
+                if self.turretheading[1]>0:
+                    shots=self.makeSpecialShots(self.CurrentFireMethod,-C.math.pi/2)
+                else:
+                    shots=self.makeSpecialShots(self.CurrentFireMethod,C.vectorToAngle([self.turretheading[0],self.turretheading[1]*-1]))
+            try:
+                for s in shots:
+                    end.append(s)
+            except:
+                end.append(shots)
             self.turretfire=False
         if len(end)>1:
             return end
     
    
-    def mainGunShots(self):
+    def makeSpecialShots(self,method,mainangle):
         #produces shotting patterns
-        if self.CurrentFireMethod == "basic":
-            s=projectile.playershot(self.rect.center[0],self.rect.center[1],self.tempangle)
-            self.firecount+=6
-            self.gunBar.adjv(-1)
+        if method == "basic":
+            s=projectile.playershot(self.rect.center[0],self.rect.center[1],mainangle+self.tempangle)
+
             return s
-        if self.CurrentFireMethod == "rotate":
-            s=projectile.scaterShots(self.rect.center[0],self.rect.center[1],-C.math.pi/2+self.powerupangle)
-            self.firecount+=6
+        if method == "rotate":
+            s=projectile.scaterShots(self.rect.center[0],self.rect.center[1],mainangle+self.powerupangle)
+
             self.powerupangle+= self.powerupdirection*ROTATIONANGLE
             if abs(self.powerupangle)>abs(self.powerupCount*ROTATIONANGLE):
                 self.powerupdirection*=-1
                 self.powerupangle+= self.powerupdirection*ROTATIONANGLE
-            self.gunBar.adjv(-2)
+
             return s
-        if self.CurrentFireMethod == "split":
+        if method== "split":
             
-            self.firecount+=6
+
             allshots = []
             for angle in range(self.powerupCount):
-                s= projectile.scaterShots(self.rect.center[0],self.rect.center[1],-C.math.pi/2+angle*ROTATIONANGLE)
-                f= projectile.scaterShots(self.rect.center[0],self.rect.center[1],-C.math.pi/2-angle*ROTATIONANGLE)
+                s= projectile.scaterShots(self.rect.center[0],self.rect.center[1],mainangle+angle*ROTATIONANGLE)
+                f= projectile.scaterShots(self.rect.center[0],self.rect.center[1],mainangle-angle*ROTATIONANGLE)
                 allshots.append(s)
                 allshots.append(f)
-            self.gunBar.adjv(-self.powerupCount)
+
             return allshots
-        if self.CurrentFireMethod == "shotgun":
-            self.firecount+=6
+        if method == "shotgun":
             allshots = []
             for angle in range(self.powerupCount): 
                 angle = C.random.randint(-self.powerupCount,self.powerupCount)
-                s= projectile.scaterShots(self.rect.center[0],self.rect.center[1],-C.math.pi/2+angle*ROTATIONANGLE)
+                s= projectile.scaterShots(self.rect.center[0],self.rect.center[1],mainangle+angle*ROTATIONANGLE)
                 allshots.append(s)
-            self.gunBar.adjv(-self.powerupCount)
             return allshots
     def powerup(self,poweruptype,ammo):
         self.CurrentFireMethod=poweruptype.lower()
         self.powerupCount+=1
     def getHud(self):
         #returns all huds
-        return (self.healthBar,self.gunBar,self.airBar)
+        return self.allbar
     def fireToggle(self,state):
         #fire on or off
         self.firing=state

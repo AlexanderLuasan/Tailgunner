@@ -98,7 +98,7 @@ class scaterShots(pygame.sprite.Sprite):
             elif shape[0]>0:
                 pygame.draw.line(self.image,(255,0,0),[0+edge,0+edge],[self.rect.width-edge,self.rect.height-edge],3)
         elif shape[1]==0:
-            pygame.draw.line(self.image,[self.rect.width,0],[0,0])
+            pygame.draw.line(self.image,(255,0,0),[self.rect.width,0],[0,0],3)
         self.speed=1
         self.direction = constants.angleToVector(angle,12)
     def hit(self):
