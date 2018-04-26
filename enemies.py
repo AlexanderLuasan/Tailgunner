@@ -7,9 +7,6 @@ import projectile
 
 
 
- 
-SPINSPEED = 3
-
 
 def closest(me,possible):
     end=None
@@ -252,18 +249,6 @@ class strafer(pygame.sprite.Sprite):
 
 
 
-class looper2(pygame.sprite.Sprite):
-    def gs(self,x,y,dx,dy):
-        gsimage = pygame.Surface([dx, dy])
-        gsimage.fill((234,154,45))
-        gsimage.set_colorkey((234,154,45))
-        gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
-        return gsimage
-    def __init__(self,x,y,direction):
-        super().__init__() #64,72
-        self.spritesheet = pygame.image.load("greenplane"+".png")
-        self.animation = [self.gs(18,0,64,72),self.gs(114,0,64,72),self.gs(210,0,64,72),self.gs(298,0,64,72)]
-        self.image=self.animation[0]
 
 #flies in a circle
 
@@ -587,7 +572,7 @@ class strafe(pygame.sprite.Sprite):
             if side=="both":
                 self.kin = circlePlane(self.rect.x,self.rect.y-self.rect.height/2,direction*-1,wing-1,"both")
             else:
-                self.kin = circlePlane(self.rect.x,self.rect.y-self.rect.height/2,direction,wing-1,"None"
+                self.kin = circlePlane(self.rect.x,self.rect.y-self.rect.height/2,direction,wing-1,"None")
     def update(self,playerlist,attacklist):
         self.rect.x+=self.heading[0]
         self.rect.y+=self.heading[1]
@@ -652,141 +637,3 @@ class strafe(pygame.sprite.Sprite):
 
 
         return None
-class boat(pygame.sprite.Sprite):
-        if self.delayCount>0:
-            self.delayCount-=1
-            if self.delayCount<1:
-                return ("ep",self.kin)
-    def gs(self,x,y,dx,dy):
-        gsimage = pygame.Surface([dx, dy])
-        gsimage.fill((234,154,45))
-        gsimage.set_colorkey((234,154,45))
-        gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
-        return gsimage
-    def crash(self):
-
-        return "sea"
-    def __init__(self,x,y,direction):
-        super().__init__()
-        self.spritesheet = pygame.image.load("battleship"+".png")
-        self.image=self.gs(0,0,64,311)
-        self.rect = self.image.get_rect()
-        self.rect.x=x
-        self.rect.y=y
-        self.heading=C.angleToVector(direction,1)
-        self.turrets = []
-        self.locs = [(34,62),(34,238)]
-        for i in range(len(self.locs)):
-            self.turrets.append(turret(0,0))
-        self.tim = 0
-    def update(self,playerlist,attacklist):
-        self.rect.x+=self.heading[0]
-        self.rect.y+=self.heading[1]
-        self.rect.y+=C.backgroundScroll
-        for i in range(len(self.turrets)):
-            self.turrets[i].rect.center=(self.rect.x+self.locs[i][0],self.rect.y+self.locs[i][1])
-        if self.tim==0:
-            self.tim+=1
-            end=["ep"]
-            for i in self.turrets:
-                end.append(i)
-            return end
-
-
-class looper(pygame.sprite.Sprite):
-
-    def gs(self,x,y,dx,dy):
-        gsimage = pygame.Surface([dx, dy])
-        gsimage.fill((234,154,45))
-        gsimage.set_colorkey((234,154,45))
-        gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
-
-        return gsimage
-
-    def __init__(self,x,y,direction,turnAround=300,shot=True):
-        super().__init__()
-        self.spritesheet = pygame.image.load("greenplane"+".png")
-        self.image=self.gs(17,0,66,72)
-        self.rect=self.image.get_rect()
-        self.rect.x=x
-        self.rect.y=y
-        self.heading=direction
-        self.turnAround=turnAround
-        self.shot = shot
-        self.looping = False
-        self.speed = 2
-        self.loopingAnimation=[self.gs(112,0,66,72),self.gs(209,0,66,72),self.gs(297,0,66,72),pygame.transform.rotate(self.gs(17,0,66,72),180)]
-        self.loopFrame = -1
-        self.loopcount = 0
-        self.health = 1
-    def crash(self):
-        self.health-=1
-    def shoot(self,playerloc):
-        return projectile.shot(self.rect.center[0],self.rect.center[1],constants.vectorToAngle([self.rect.center[0]-playerloc[0],self.rect.center[1]-playerloc[1]]))
-    def loop(self):
-        self.loopcount=0
-        self.loopFrame += 1
-        self.image=self.loopingAnimation[self.loopFrame]
-        self.heading[1]-=.5
-        if self.loopFrame == len(self.loopingAnimation)-1:
-            self.looping = False
-
-    def update(self,playerlist,attacklist):
-        #movement
-        self.rect.x+=self.heading[0]*self.speed
-        self.rect.y+=self.heading[1]*self.speed
-
-        #looping method
-        if self.rect.y>self.turnAround and self.looping == False:
-            self.loop()
-            self.looping = True
-        if self.looping==True:
-            self.loopcount+=1
-            if self.loopcount>15:
-                self.loop()
-        #kill by player
-        hits=pygame.sprite.spritecollide(self, attacklist, False)
-        for i in hits:
-            i.hit()
-            self.health-=1
-        if self.health<=0:
-            self.kill()
-
-        #killoff screen
-        if abs(self.rect.x-400)>450 or abs(self.rect.y-300)>350:
-            self.kill()
-        #fire
-        if self.rect.y>self.turnAround and self.shot == True:
-            for i in playerlist:
-                return ("ea",self.shoot(i.rect.center))
-        return None
-        self.kill()
-    def setSpin(self,position):
-        self.position=position
-        self.spin(0)
-    def spin(self,direction):
-        #adjust position
-        self.position = (self.position+direction)
-        if self.position>len(self.animations)-1:
-            self.position=0
-        elif self.position<0:
-            self.position=len(self.animations)-1
-        #remember center
-        currentcenter = (self.rect.x+self.rect.width,self.rect.y+self.rect.height)
-        self.image = self.animations[self.position][0]#changeimage
-        self.rect = self.image.get_rect()#new rect and center
-        self.rect.x= currentcenter[0]-self.rect.width
-        self.rect.y=currentcenter[1]-self.rect.height
-        self.heading = C.angleToVector(self.animationAngles[self.position],SPINSPEED)
-        #round heading to int
-        if self.heading[0]>0:
-            self.heading[0] = int(self.heading[0]+.5)
-        elif self.heading[0]<0:
-            self.heading[0] = int(self.heading[0]-.5)
-        if self.heading[1]>0:
-            self.heading[1] = int(self.heading[1]+.5)
-        elif self.heading[1]<0:
-            self.heading[1] = int(self.heading[1]-.5)
-        
-    
-        
