@@ -50,7 +50,7 @@ def singlePlaneLevel(name,lives):
                 elif event.key == 99:
                     hero.setRoll(1)
                 elif event.key == 32:
-                    hero.fireTurret()
+                    hero.fireTurret(True)
                 elif event.key == 119:
                     turretComb.append(119)
                 elif event.key == 97:
@@ -78,6 +78,8 @@ def singlePlaneLevel(name,lives):
                     hero.fireToggle(False)
                 elif event.key == 99:
                     hero.setRoll(0)
+                elif event.key == 32:
+                    hero.fireTurret(False)                
 
         if len(turretComb)>0:
 
