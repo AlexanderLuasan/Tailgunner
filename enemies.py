@@ -36,6 +36,24 @@ class Test_plane(pygame.sprite.Sprite):
         self.rect.x = x + self.rect.width/2
         self.rect.y= y + self.rect.height/2
 
+class Test_plane2(pygame.sprite.Sprite):
+    def gs(self,x,y,dx,dy):
+        gsimage = pygame.Surface([dx, dy])
+        gsimage.fill((234,154,45))
+        gsimage.set_colorkey((234,154,45))
+        gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
+        return gsimage
+    def __init__(self,x,y):
+        super().__init__()
+        self.has_looped = False
+        self.health = 10
+        self.spritesheet = pygame.image.load("greenplane"+".png")
+        self.animation = [self.gs(18,0,64,72),self.gs(114,0,64,72),self.gs(210,0,64,72),self.gs(298,0,64,72)]
+        self.image = self.animation[0]
+        self.heading = [.5,.5]
+        self.rect = self.image.get_rect()
+        self.rect.x = x + self.rect.width/2
+        self.rect.y= y + self.rect.height/2
 
 class Real_looper(pygame.sprite.Sprite):
     def gs(self,x,y,dx,dy):
