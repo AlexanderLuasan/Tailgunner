@@ -19,6 +19,8 @@ print(len(world.huds))
 fullexit=False
 
 def singlePlaneLevel(name,lives):
+    testing = C.makeConstants()
+    print(testing.getC("PlayerSpeed"))
     count=0
     other = True
     done=False

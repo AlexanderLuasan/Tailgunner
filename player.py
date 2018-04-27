@@ -229,37 +229,17 @@ class player(pygame.sprite.Sprite):
         if self.turretFireCount>0:
             self.turretFireCount-=1
 
-        end = ["fire"]#fireing
-        if self.firing and self.gunBar.getV()>0 and self.mainFireCount<1:
-            shots=self.makeSpecialShots(self.CurrentFireMethod,-C.math.pi/2)
-            self.firing=False
-            try:
-                for s in shots:
-                    end.append(s)
-            except:
-                end.append(shots)
-            self.gunBar.adjv(-1)
-            #delay after shot
-            if self.CurrentFireMethod == "semi" and self.mainBulletCount<5:
-                self.firing=True
-                self.mainBulletCount+=1
-                self.mainFireCount=2
-                print("w")
-            elif self.CurrentFireMethod == "full":
-                self.firing=True
-                self.mainFireCount =2
-            else:
-                self.mainFireCount = 10
-                self.mainBulletCount=0
-        elif self.firing and self.CurrentFireMethod == "basic" and self.mainFireCount<1:
-            shots = self.makeSpecialShots(self.CurrentFireMethod,-C.math.pi/2)
-            end.append(shots)
-            self.firing=False
-            self.mainFireCount = 10
-        elif self.gunBar.getV()<1 and self.CurrentFireMethod != "basic":
-            self.CurrentFireMethod="basic"  
-        
-        #firing for turret
+        shots = ["fire"]
+        add=self.turretFire()
+        for i in add:
+            shots.append(i)
+        add=self.mainFire()
+        for i in add:
+            shots.append(i)        
+        if len(shots)>1:
+            return shots
+    def turretFire(self):
+        end = []
         if self.turretfire and self.ammo1.getV()>0 and self.turretFireCount<1:
             
             if self.turretheading[0]!=0:
@@ -301,12 +281,38 @@ class player(pygame.sprite.Sprite):
             end.append(shots)
         elif self.ammo1.getV()<1:
             self.turretFireMode = "basicS"
-            
-            
-        if len(end)>1:
-            return end
-    
-   
+        return end
+    def mainFire(self):
+        end = []
+        if self.firing and self.gunBar.getV()>0 and self.mainFireCount<1:
+            shots=self.makeSpecialShots(self.CurrentFireMethod,-C.math.pi/2)
+            self.firing=False
+            try:
+                for s in shots:
+                    end.append(s)
+            except:
+                end.append(shots)
+            self.gunBar.adjv(-1)
+            #delay after shot
+            if self.CurrentFireMethod == "semi" and self.mainBulletCount<5:
+                self.firing=True
+                self.mainBulletCount+=1
+                self.mainFireCount=2
+                print("w")
+            elif self.CurrentFireMethod == "full":
+                self.firing=True
+                self.mainFireCount =2
+            else:
+                self.mainFireCount = 10
+                self.mainBulletCount=0
+        elif self.firing and self.CurrentFireMethod == "basic" and self.mainFireCount<1:
+            shots = self.makeSpecialShots(self.CurrentFireMethod,-C.math.pi/2)
+            end.append(shots)
+            self.firing=False
+            self.mainFireCount = 10
+        elif self.gunBar.getV()<1 and self.CurrentFireMethod != "basic":
+            self.CurrentFireMethod="basic"  
+        return end
     def makeSpecialShots(self,method,mainangle):
         #produces shotting patterns
         if method == "basic" or method == "semi" or method == "full":
