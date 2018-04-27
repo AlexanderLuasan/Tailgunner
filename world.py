@@ -4,8 +4,6 @@ import player
 import enemies
 import projectile
 pygame.init()
- 
-
 #list of things
 players = pygame.sprite.Group()
 attacks = pygame.sprite.Group()

@@ -42,6 +42,7 @@ def vectorToAngle(vector):
         return math.atan(vector[1]/vector[0])
     else:
         return round(math.pi-math.atan(vector[1]/-vector[0]),3)
+
 def roundVector(vector):
     end = [0,0]
     if vector[0]>0:
