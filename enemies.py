@@ -382,10 +382,10 @@ class SpinPlane(pygame.sprite.Sprite):
         return gsimage
     def crash(self):
         self.kill()
-    def setSpin(self,position):
+    def setSpin(self,position):#sets image and angle
         self.position=position
         self.spin(0)
-    def spin(self,direction):
+    def spin(self,direction):#increments the image and angle and readjust position
         #adjust position
         self.position = (self.position+direction)
         if self.position>len(self.animations)-1:
