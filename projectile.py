@@ -98,9 +98,9 @@ class scaterShots(pygame.sprite.Sprite):
             elif shape[0]>0:
                 pygame.draw.line(self.image,(255,0,0),[0+edge,0+edge],[self.rect.width-edge,self.rect.height-edge],3)
         elif shape[1]==0:
-            pygame.draw.line(self.image,[self.rect.width,0],[0,0])
+            pygame.draw.line(self.image,(255,0,0),[self.rect.width,0],[0,0],3)
         self.speed=1
-        self.direction = constants.angleToVector(angle,12)
+        self.direction = constants.roundVector(constants.angleToVector(angle,12))
     def hit(self):
         self.kill()
         return 1
@@ -109,13 +109,8 @@ class scaterShots(pygame.sprite.Sprite):
     def getheading(self):
         return self.direction
     def update(self):
-        if self.direction[0]>0:
-            self.rect.x+=int(self.direction[0]+.5)*self.speed
-        elif self.direction[0]<0:
-            self.rect.x+=int(self.direction[0]-.5)*self.speed
-        else:
-            self.rect.x+=self.direction[0]*self.speed
-        self.rect.y+=int(self.direction[1]+.5)*self.speed
+        self.rect.x+=self.direction[0]
+        self.rect.y+=self.direction[1]
         if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
             self.kill()
 

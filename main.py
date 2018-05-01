@@ -19,6 +19,8 @@ print(len(world.huds))
 fullexit=False
 
 def singlePlaneLevel(name,lives):
+    testing = C.makeConstants()
+    print(testing.getC("PlayerSpeed"))
     count=0
     other = True
     done=False
@@ -50,7 +52,7 @@ def singlePlaneLevel(name,lives):
                 elif event.key == 99:
                     hero.setRoll(1)
                 elif event.key == 32:
-                    hero.fireTurret()
+                    hero.fireTurret(True)
                 elif event.key == 119:
                     turretComb.append(119)
                 elif event.key == 97:
@@ -59,11 +61,16 @@ def singlePlaneLevel(name,lives):
                     turretComb.append(115)
                 elif event.key == 100:
                     turretComb.append(100)
+<<<<<<< HEAD
                 elif event.key == 113: #q
                     world.enemeys.add(world.enemies.Real_looper(620,-50))
                 elif event.key == 101: #e
                     world.enemeys.add(world.enemies.Test_plane(620,-50))
                     world.enemeys.add(world.enemies.Test_plane2(700,-50))
+=======
+                elif event.key == 113:
+                    world.enemeys.add(world.enemies.SpinPlane(-50,200))
+>>>>>>> master
                 else:
                     print(event.key)
             elif event.type == pygame.KEYUP:
@@ -81,6 +88,8 @@ def singlePlaneLevel(name,lives):
                     hero.fireToggle(False)
                 elif event.key == 99:
                     hero.setRoll(0)
+                elif event.key == 32:
+                    hero.fireTurret(False)                
 
         if len(turretComb)>0:
 
