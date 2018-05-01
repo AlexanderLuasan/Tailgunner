@@ -3,6 +3,7 @@ import constants
 import player
 import enemies
 import projectile
+import fx
 pygame.init()
 #list of things
 players = pygame.sprite.Group()
@@ -11,6 +12,7 @@ enemeys = pygame.sprite.Group()
 enemeyattacks = pygame.sprite.Group()
 huds = pygame.sprite.Group()
 backgrounds = pygame.sprite.Group()
+FX = pygame.sprite.Group()
 temp = pygame.sprite.Group()
 #inialize screen
 backgroundAngle = 0
@@ -68,24 +70,17 @@ class backgroundTile(pygame.sprite.Sprite):
         if self.tim>self.Tim:
             self.rect.y-=(constants.backgroundScroll*self.Tim+constants.backgroundScroll)
             self.tim=0
-    
-class detector(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.image = pygame.Surface((10,10))
-        self.image.fill((255,0,255))
-        self.rect = self.image.get_rect()
-        self.rect.center = (constants.screenSize[0]/2,0)
+
         
         
-#d = detector()
-#temp.add(d)        
-    
+
 def spawn():
     e=enemies.strafer([100,constants.screenSize[0]-100],-10,constants.math.pi/2)
-    enemeys.add(e)       
-    
+    enemeys.add(e)
+
+
 def drawall():
+    global screen
     screen.fill((0,0,255))
     backgrounds.draw(screen)
     players.draw(screen)
@@ -93,7 +88,11 @@ def drawall():
     enemeys.draw(screen)
     enemeyattacks.draw(screen)
     huds.draw(screen)
-
+    FX.draw(screen)
+    for i in players:
+        if i.iframesCount>0:
+            screen=fx.flicker(i,screen)
+        
     pygame.display.flip()
 
 

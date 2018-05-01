@@ -2,7 +2,7 @@ import pygame
 import constants as C
 import projectile
 
-
+maskingtester = pygame.sprite.GroupSingle()
 COOP = True
 #draws health bar
 ROTATIONANGLE = .1
@@ -177,7 +177,7 @@ class player(pygame.sprite.Sprite):
         
         
         #stat bars
-        self.healthBar = hudBar(20,C.screenSize[1]-100,"right",100,100,(255,0,0))
+        self.healthBar = hudBar(20,C.screenSize[1]-100,"right",3,3,(255,0,0))
         self.gunBar = hudBar(40,C.screenSize[1]-100,"right",100,100,(255,255,0))
         self.ammmoDisplay = counter("right")
         self.airBar = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,0,255))
@@ -201,7 +201,7 @@ class player(pygame.sprite.Sprite):
         self.dead = False
         self.respawn= False
         self.repsawnTime = 0
-        self.iframes=False
+        self.iframesCount = 0
         
         
         #power ups
@@ -238,6 +238,7 @@ class player(pygame.sprite.Sprite):
             shots.append(i)        
         if len(shots)>1:
             return shots
+        
     def turretFire(self):
         end = []
         if self.turretfire and self.ammo1.getV()>0 and self.turretFireCount<1:
@@ -366,20 +367,16 @@ class player(pygame.sprite.Sprite):
     def death(self):
         #call and it will handle the explosion
         self.deathdelay-=1
-        if self.deathdelay<0:
-            center = self.rect.center
-            self.image = pygame.Surface([self.rect.width+2,self.rect.width+2])
-            self.rect = self.image.get_rect()
-            self.image.fill((0,0,0))
-            pygame.draw.circle(self.image,(255,0,0),((int(self.rect.width/2),int(self.rect.width/2))),int(self.rect.width/2))
-            self.image.set_colorkey((0,0,0))
-            self.rect.center = center
-            self.deathdelay = 2
+        self.iframesCount=5
+        if self.deathdelay==0:
             self.dead = True
-        if self.rect.width>200:
+            #image invisable
+        if self.deathdelay==-1:
+            return("explosion")
+        if self.deathdelay<-60*6:
             self.deathdelay = 10
             self.respawn= True
-            self.iframes=True
+            self.iframesCount=5
             for i in self.allbar:
                 i.kill()
             return("respawn",(self.rect.center))
@@ -391,7 +388,7 @@ class player(pygame.sprite.Sprite):
                 self.rollcount=len(self.toproll)-1            
             if self.airBar.getV()>60:
                 self.rolling=True
-                self.iframes=True
+                self.iframes=5
             self.rollDir=self.roll
             
         elif self.heading[0]>=1.5*self.planeSpeed and self.roll>0:
@@ -399,7 +396,7 @@ class player(pygame.sprite.Sprite):
                 self.rollcount=0
             if self.airBar.getV()>60:
                 self.rolling=True
-                self.iframes=True
+                self.iframes=5
             self.rollDir=self.roll
     def adjustHeading(self,direction):
         #shift heading
@@ -440,7 +437,7 @@ class player(pygame.sprite.Sprite):
                         if self.rollcount<0:
                             self.heading[0]=1.5*self.planeSpeed
                             self.rolling=False
-                            self.iframes=False
+                            self.iframes=0
                     elif self.rollDir>0:
                         self.image=self.toproll[self.rollcount][front][prop]
                         self.heading[0] = self.toprollspeed[self.rollcount]
@@ -448,7 +445,7 @@ class player(pygame.sprite.Sprite):
                         if self.rollcount>=len(self.toproll):
                             self.heading[0]=-1.5*self.planeSpeed
                             self.rolling=False
-                            self.iframes=False                
+                            self.iframes=0                
             else:
                 self.rolling=False
         else:
@@ -507,19 +504,26 @@ class player(pygame.sprite.Sprite):
         elif self.rect.y>C.screenSize[1]-self.rect.height:
             self.rect.y=C.screenSize[1]-self.rect.height    
     def colisionDetection(self,enimies,attacks):
-        if self.iframes == False:
+        if self.iframesCount>0:
+            self.iframesCount -=1
+        if self.iframesCount==0:
             hits=pygame.sprite.spritecollide(self, attacks, False)
             for i in hits:
-                dam=i.hit()
-                self.healthBar.adjv(-dam)
-                
+                if pygame.sprite.collide_mask(self,i):
+                    dam=i.hit()
+                    self.healthBar.adjv(-dam)
+                    self.iframesCount=120
+                    break
+            
             crash = pygame.sprite.spritecollide(self, enimies, False)
             for i in crash:
                 temp=i.crash()
                 if temp == "sea":
                     pass
                 else:
-                    self.healthBar.adjv(-20)
+                    self.healthBar.adjv(-1)
+                    self.iframesCount=120
+                    break
     
 
 
