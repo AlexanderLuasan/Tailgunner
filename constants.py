@@ -3,7 +3,7 @@ import random
 
 import os
 
-
+ColorKey =(234, 154, 45)
 #class used to pass constants around
 class constant():
     def __init__(self):

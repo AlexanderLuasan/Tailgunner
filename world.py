@@ -78,7 +78,10 @@ def spawn():
     e=enemies.strafer([100,constants.screenSize[0]-100],-10,constants.math.pi/2)
     enemeys.add(e)
 
-
+def explode(obj):
+    bits = fx.makeExplosion(obj)
+    for i in bits:
+        FX.add(i)
 def drawall():
     global screen
     screen.fill((0,0,255))

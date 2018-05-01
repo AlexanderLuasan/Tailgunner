@@ -134,6 +134,7 @@ def singlePlaneLevel(name,lives):
             i.update()
         for i in world.players:
             action = i.update(world.enemeys,world.enemeyattacks)
+
             if action != None:
                 if action[0] == "respawn":
                     i.kill()
@@ -149,12 +150,15 @@ def singlePlaneLevel(name,lives):
                             pygame.mixer.music.load("projectile.wav")
                             pygame.mixer.music.play()
                 elif action[0] == "explosion":
-                    print("explosion")
-                    pass
+                    print("explosion1")
+                    world.explode(i)
+                    
 
 
 
         for i in world.attacks:
+            i.update()
+        for i in world.FX:
             i.update()
 
         if other==True:

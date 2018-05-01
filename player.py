@@ -177,7 +177,7 @@ class player(pygame.sprite.Sprite):
         
         
         #stat bars
-        self.healthBar = hudBar(20,C.screenSize[1]-100,"right",3,3,(255,0,0))
+        self.healthBar = hudBar(20,C.screenSize[1]-100,"right",1,1,(255,0,0))
         self.gunBar = hudBar(40,C.screenSize[1]-100,"right",100,100,(255,255,0))
         self.ammmoDisplay = counter("right")
         self.airBar = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,0,255))
@@ -368,11 +368,11 @@ class player(pygame.sprite.Sprite):
         #call and it will handle the explosion
         self.deathdelay-=1
         self.iframesCount=5
-        if self.deathdelay==0:
+        if self.dead == False:
             self.dead = True
+            self.image.set_alpha(0)
+            return("explosion","none")
             #image invisable
-        if self.deathdelay==-1:
-            return("explosion")
         if self.deathdelay<-60*6:
             self.deathdelay = 10
             self.respawn= True
@@ -509,7 +509,7 @@ class player(pygame.sprite.Sprite):
         if self.iframesCount==0:
             hits=pygame.sprite.spritecollide(self, attacks, False)
             for i in hits:
-                if pygame.sprite.collide_mask(self,i):
+                if pygame.sprite.collide_mask(self,i)!=None:
                     dam=i.hit()
                     self.healthBar.adjv(-dam)
                     self.iframesCount=120
