@@ -61,8 +61,16 @@ def singlePlaneLevel(name,lives):
                     turretComb.append(115)
                 elif event.key == 100:
                     turretComb.append(100)
+<<<<<<< HEAD
+                elif event.key == 113: #q
+                    world.enemeys.add(world.enemies.Real_looper(620,-50))
+                elif event.key == 101: #e
+                    world.enemeys.add(world.enemies.Test_plane(620,-50))
+                    world.enemeys.add(world.enemies.Test_plane2(700,-50))
+=======
                 elif event.key == 113:
                     world.enemeys.add(world.enemies.SpinPlane(-50,200))
+>>>>>>> master
                 else:
                     print(event.key)
             elif event.type == pygame.KEYUP:
