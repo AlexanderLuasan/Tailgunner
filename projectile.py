@@ -14,7 +14,7 @@ class zeroShot(pygame.sprite.Sprite):
         self.heading = constants.angleToVector(self.angle,self.speed)
     def hit(self):
         self.kill()
-        return 5     
+        return 1     
     def update(self):
         self.rect.x+=self.heading[0]
         self.rect.y+=self.heading[1]

@@ -19,8 +19,6 @@ print(len(world.huds))
 fullexit=False
 
 def singlePlaneLevel(name,lives):
-    testing = C.makeConstants()
-    print(testing.getC("PlayerSpeed"))
     count=0
     other = True
     done=False
@@ -138,13 +136,16 @@ def singlePlaneLevel(name,lives):
                     world.players.add(hero)
                     for i in hero.getHud():
                         world.huds.add(i)
-                if action[0] == "fire":
+                elif action[0] == "fire":
                     for i in action:
                         if i != "fire":
                             s = i
                             world.attacks.add(s)
                             pygame.mixer.music.load("projectile.wav")
                             pygame.mixer.music.play()
+                elif action[0] == "explosion":
+                    print("explosion")
+                    pass
 
 
 
