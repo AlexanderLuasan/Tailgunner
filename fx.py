@@ -19,7 +19,11 @@ def flicker(thing,screen):
     if random.randint(0,1):
         screen.blit(outlineObject(thing),thing.rect)
     return screen
-RUBBLESPEED = 8
+def sheild(rect,screen):
+    if random.randint(0,1):
+        pygame.draw.ellipse(screen,(255,200,200),rect,3)
+    return screen    
+RUBBLESPEED = 9
 class rubble(pygame.sprite.Sprite):
     def __init__(self,x,y,color=(0,255,0),size=[2,2],direction=None,duration=60*6):
         super().__init__()
@@ -34,7 +38,7 @@ class rubble(pygame.sprite.Sprite):
             self.heading = constants.angleToVector(direction,RUBBLESPEED)
         self.count = duration
     def update(self):
-        if self.count%2==0:
+        if self.count%3==0:
             self.rect.x+=self.heading[0]
             self.rect.y+=self.heading[1]
         self.count-=1
@@ -42,7 +46,8 @@ class rubble(pygame.sprite.Sprite):
         if self.count <1:
             self.kill()
         if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
-            self.kill()        
+            self.kill() 
+
 def makeExplosion(obj):
     end = []
     
@@ -54,11 +59,9 @@ def makeExplosion(obj):
         colors.append(tower)
     brickSize = [5,5]
     y=0
-    print(len(colors[0]))
     while y <len(colors[0]):
         x=0
         while x < len(colors):#main index
-            print(x,y,colors[x][y][0:3])
             if colors[x][y][0:3] != constants.ColorKey:
                 end.append(rubble(obj.rect.x+x,obj.rect.y+y, size = brickSize, color = colors[x][y][0:3]))
                 x+=2

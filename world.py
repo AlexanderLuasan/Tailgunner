@@ -86,15 +86,19 @@ def drawall():
     global screen
     screen.fill((0,0,255))
     backgrounds.draw(screen)
+    
+    enemeys.draw(screen)
     players.draw(screen)
     attacks.draw(screen)
-    enemeys.draw(screen)
     enemeyattacks.draw(screen)
+    
     huds.draw(screen)
     FX.draw(screen)
     for i in players:
         if i.iframesCount>0:
             screen=fx.flicker(i,screen)
+        if i.sheild==True:
+            fx.sheild(i.rect,screen)
         
     pygame.display.flip()
 

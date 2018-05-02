@@ -213,10 +213,12 @@ class player(pygame.sprite.Sprite):
         self.powerupangle = 0
         #for rotation
         self.powerupdirection = 1
+        #for shield
+        self.sheild=True
       
         
     def update(self,enimies,attacks):
-        if self.healthBar.currentV<0:#die
+        if self.healthBar.currentV<=0:#die
             return self.death()
         self.acceeration()
         self.animate()
@@ -509,22 +511,30 @@ class player(pygame.sprite.Sprite):
         if self.iframesCount==0:
             hits=pygame.sprite.spritecollide(self, attacks, False)
             for i in hits:
-                if pygame.sprite.collide_mask(self,i)!=None:
+                if self.sheild == False:
                     dam=i.hit()
                     self.healthBar.adjv(-dam)
+                    self.iframesCount=120
+                    break
+                else:
+                    self.sheild=False
                     self.iframesCount=120
                     break
             
             crash = pygame.sprite.spritecollide(self, enimies, False)
             for i in crash:
-                temp=i.crash()
-                if temp == "sea":
-                    pass
+                if self.sheild == False:
+                    temp=i.crash()
+                    if temp == "sea":
+                        pass
+                    else:
+                        self.healthBar.adjv(-1)
+                        self.iframesCount=120
+                        break
                 else:
-                    self.healthBar.adjv(-1)
+                    self.sheild=False
                     self.iframesCount=120
                     break
-    
 
 
         

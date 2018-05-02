@@ -134,7 +134,6 @@ def singlePlaneLevel(name,lives):
             i.update()
         for i in world.players:
             action = i.update(world.enemeys,world.enemeyattacks)
-
             if action != None:
                 if action[0] == "respawn":
                     i.kill()
