@@ -390,7 +390,7 @@ class player(pygame.sprite.Sprite):
                 self.rollcount=len(self.toproll)-1            
             if self.airBar.getV()>60:
                 self.rolling=True
-                self.iframes=5
+
             self.rollDir=self.roll
             
         elif self.heading[0]>=1.5*self.planeSpeed and self.roll>0:
@@ -398,7 +398,7 @@ class player(pygame.sprite.Sprite):
                 self.rollcount=0
             if self.airBar.getV()>60:
                 self.rolling=True
-                self.iframes=5
+
             self.rollDir=self.roll
     def adjustHeading(self,direction):
         #shift heading
@@ -427,6 +427,7 @@ class player(pygame.sprite.Sprite):
         else:
             side = 0        
         if self.rolling == True:
+            self.iframesCount=10
             if self.airBar.getV()>1:
                 self.airBar.adjv(-1)
                 
@@ -504,37 +505,49 @@ class player(pygame.sprite.Sprite):
         if self.rect.y<0:
             self.rect.y=0
         elif self.rect.y>C.screenSize[1]-self.rect.height:
-            self.rect.y=C.screenSize[1]-self.rect.height    
+            self.rect.y=C.screenSize[1]-self.rect.height 
     def colisionDetection(self,enimies,attacks):
         if self.iframesCount>0:
             self.iframesCount -=1
         if self.iframesCount==0:
             hits=pygame.sprite.spritecollide(self, attacks, False)
             for i in hits:
-                if self.sheild == False:
-                    dam=i.hit()
-                    self.healthBar.adjv(-dam)
-                    self.iframesCount=120
-                    break
-                else:
-                    self.sheild=False
-                    self.iframesCount=120
-                    break
+                #do smarter
+                if True:
+                    if self.sheild == False:
+                        dam=i.hit()
+                        self.healthBar.adjv(-dam)
+                        self.iframesCount=120
+                        break
+                    else:
+                        self.sheild=False
+                        self.iframesCount=120
+                        break
             
             crash = pygame.sprite.spritecollide(self, enimies, False)
             for i in crash:
-                if self.sheild == False:
-                    temp=i.crash()
-                    if temp == "sea":
-                        pass
+                if pygame.sprite.collide_mask(self,i)!=None:
+                    if self.sheild == False:
+                        temp=i.crash()
+                        if temp == "sea":
+                            pass
+                        elif temp == "powerup":
+                            self.PowerUpHandLer(i)
+                        else:
+                            self.healthBar.adjv(-1)
+                            self.iframesCount=120
+                            break
                     else:
-                        self.healthBar.adjv(-1)
+                        self.sheild=False
                         self.iframesCount=120
                         break
-                else:
-                    self.sheild=False
-                    self.iframesCount=120
-                    break
+    def PowerUpHandLer(self,ObjPowerup):
+        powerUpType = ObjPowerup.powerUp
+        ObjPowerup.kill()
+        self.healthBar.adjv(1)
+        if powerUpType=="sheild":
+            self.sheild = True
+
 
 
         

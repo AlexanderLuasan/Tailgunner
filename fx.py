@@ -32,10 +32,11 @@ class rubble(pygame.sprite.Sprite):
         self.rect=self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.heading=[0,0]
         self.heading = direction
         if direction==None:
             direction=random.uniform(0,1)*2*constants.math.pi
-            self.heading = constants.angleToVector(direction,RUBBLESPEED)
+            self.heading = constants.angleToVector(direction,RUBBLESPEED+random.randint(-4,4))
         self.count = duration
     def update(self):
         if self.count%3==0:
