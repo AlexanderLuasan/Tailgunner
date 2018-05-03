@@ -104,6 +104,7 @@ class Real_looper(pygame.sprite.Sprite):
     def update_image(self):
         """updates  self.image as apropriate to the current heading and status"""
         currentx = self.heading[0]
+        print(currentx)
 
         #flips currentx if y direction is negative
         """
@@ -133,7 +134,7 @@ class Real_looper(pygame.sprite.Sprite):
             self.image = animations_list[4]
         elif currentx >= 1:
             self.image = animations_list[3]
-        elif 1<currentx<-1:
+        elif 1 > currentx > -1:
             self.image = animations_list[2]
         elif currentx <= -1:
             self.image = animations_list[1]
@@ -160,6 +161,7 @@ class Real_looper(pygame.sprite.Sprite):
         for mylist in self.animation:
             for i in range(len(mylist)):
                 mylist[i] = pygame.transform.flip(mylist[i], True, True)
+        print("hello!")
 
 
     def update(self,playerlist,attacklist):
@@ -170,9 +172,8 @@ class Real_looper(pygame.sprite.Sprite):
         self.rect.y+= self.heading[1]
         #print(self.rect.y) #del
         self.heading[0] += self.acceleration_vector[0]
-
         self.heading[1] += self.acceleration_vector[1]
-        print(self.heading[0])
+        #print(self.heading[0])
 
 
         if self.heading[0] > 2:
@@ -196,7 +197,7 @@ class Real_looper(pygame.sprite.Sprite):
 
 
 
-        if (self.rect.y > C.screenSize[1]-300 and not self.has_looped) or self.has_looped == "in progress":
+        if (self.rect.y > C.screenSize[1]-200 and not self.has_looped) or self.has_looped == "in progress":
             self.loop_de_loop()
         else:
             self.evasive_manuvers()
