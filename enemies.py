@@ -104,7 +104,6 @@ class Real_looper(pygame.sprite.Sprite):
     def update_image(self):
         """updates  self.image as apropriate to the current heading and status"""
         currentx = self.heading[0]
-        print(currentx)
 
         #flips currentx if y direction is negative
         """
@@ -160,7 +159,7 @@ class Real_looper(pygame.sprite.Sprite):
         """flips all the images in self.animation"""
         for mylist in self.animation:
             for i in range(len(mylist)):
-                mylist[i] = pygame.transform.flip(mylist[i], True, True)
+                mylist[i] = pygame.transform.flip(mylist[i], False, True)
         print("hello!")
 
 
