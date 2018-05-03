@@ -34,29 +34,12 @@ class Test_plane(pygame.sprite.Sprite):
         self.spritesheet = pygame.image.load("greenplane"+".png")
         self.animation = [self.gs(18,0,64,72),self.gs(114,0,64,72),self.gs(210,0,64,72),self.gs(298,0,64,72)]
         self.image = self.animation[0]
+        self.tim = 0
         self.heading = [0,0]
         self.rect = self.image.get_rect()
         self.rect.x = x + self.rect.width/2
         self.rect.y= y + self.rect.height/2
 
-class Test_plane2(pygame.sprite.Sprite):
-    def gs(self,x,y,dx,dy):
-        gsimage = pygame.Surface([dx, dy])
-        gsimage.fill((234,154,45))
-        gsimage.set_colorkey((234,154,45))
-        gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
-        return gsimage
-    def __init__(self,x,y):
-        super().__init__()
-        self.has_looped = False
-        self.health = 10
-        self.spritesheet = pygame.image.load("greenplane"+".png")
-        self.animation = [self.gs(18,0,64,72),self.gs(114,0,64,72),self.gs(210,0,64,72),self.gs(298,0,64,72)]
-        self.image = self.animation[0]
-        self.heading = [.5,.5]
-        self.rect = self.image.get_rect()
-        self.rect.x = x + self.rect.width/2
-        self.rect.y= y + self.rect.height/2
 
 class Real_looper(pygame.sprite.Sprite):
     def gs(self,x,y,dx,dy):
@@ -73,23 +56,36 @@ class Real_looper(pygame.sprite.Sprite):
         super().__init__()
         self.has_looped = False
         self.health = 10
-        self.spritesheet = pygame.image.load("greenplane"+".png")
-        self.animation = [self.gs(18,0,64,72),self.gs(114,0,64,72),self.gs(210,0,64,72),self.gs(298,0,64,72)]
-        self.image = self.animation[0]
-        self.heading = [0,.5]
+        self.spritesheet = pygame.image.load("Hayabusa"+".png")
+        self.animation = []
+        templist = []
+        for b in range(4): #0,1,2
+            for i in range(5):
+                templist.append(pygame.transform.flip(self.gs(56*b,48*i,57,48), False, True))
+            self.animation.append(templist)
+            templist = []
+
+        #self.animation is a nested list
+        #self.animation[0] is a list of rotor, nonfiring images
+        #self.animation[1] is a list of non rotor, nonfiring images
+        #[2] and [3] are [0] and [1], but firing
+        #in these nested lists, 0 = leftmost heading, 2 = forward heading, 4 = rightmost heading
+        self.image = self.animation[3][2]
+        self.heading = [0,-1]
         self.acceleration_vector = [0,0]
         self.rect = self.image.get_rect()
         self.rect.x = x + self.rect.width/2
         self.rect.y= y + self.rect.height/2
         self.fire = 0
+        self.tim = 0
 
     def evasive_manuvers(self):
         """semi-randomly adjusts the acceleration vector, in such a way that will typically keep the plane onscreen"""
-
+        """and modifies self.image as appropriate"""
 
         temp = (C.screenSize[0]/2- self.rect.x) #negative when x is to the right of the center, positive if to the left
         temp2 = C.random.randint(0,C.screenSize[0]) - C.screenSize[0]/2 # random num between -1/2 screen size, and positive 1/2 screensize
-        temp3 = temp2+ .11*temp
+        temp3 = temp2+ .14 * temp
 
 
         if temp3 > 0:
@@ -102,38 +98,72 @@ class Real_looper(pygame.sprite.Sprite):
         elif self.acceleration_vector[0] < -.1:
             self.acceleration_vector[0] = -.1
 
-
-
+        self.update_image()
 
 
     def update_image(self):
-        """will update the image as apropriate to the current heading"""
-        image_dict = {} # should be a dict in the form x heading, appropriate animation index basic idea is that it will find the the key with the least difference from the current x heading, and make that value self.image. Will complete when i get the sprite
+        """updates  self.image as apropriate to the current heading and status"""
+        currentx = self.heading[0]
+
+        #flips currentx if y direction is negative
+        """
+        if self.heading[1]> -2:
+            pass
+        else:
+            currentx = -currentx
+        """
+
+        #selects the animation list, as appropriate.
+        #if firing, it'll select a list from self.animation that contains firing sprites
+        #rotors are dependent on self.tim, and flip every update
+        if self.fire > 0:
+            if self.tim % 3:
+                animations_list = self.animation[2]
+            else:
+                animations_list = self.animation[3]
+        else:
+            if self.tim % 3:
+                animations_list = self.animation[0]
+            else:
+                animations_list = self.animation[1]
+
+        #selects the correct sprite from animations_list, as dependent on x heading
+
+        if currentx >= 2:
+            self.image = animations_list[4]
+        elif currentx >= 1:
+            self.image = animations_list[3]
+        elif 1<currentx<-1:
+            self.image = animations_list[2]
+        elif currentx <= -1:
+            self.image = animations_list[1]
+        elif currentx <= -2:
+            self.image = animations_list[0]
+
 
     def loop_de_loop(self):
         """makes y accel negative until a certain y velocity is hit, then sets self.has_looped to true"""
         self.acceleration_vector[1] = - .025
         self.acceleration_vector[0] = -self.heading[0]/2
-
+        self.has_looped = "in progress"
         #print(self.heading[1])
 
-        if self.heading[1] < -3.25:
-            self.image = pygame.transform.flip(self.image, True, True)
-            self.heading[1] = -3.25
+        if self.heading[1] < -3:
+            self.heading[1] = -3
             self.has_looped = True
             self.acceleration_vector[1] = 0
-            #print("switch")
+            self.flips_images()
+            print("looped")
 
-    def real_loop_de_loop():
-        """not currently being used! should change self.acceleration to be perpendicular self.heading, causing it to do a loop additionally, should transform all of the animation rotate all the animation things bit by bit"""
-        #self.acceleration_vector = C.angleToVector(C.vectorToAngle(self.heading) - C.math.pi/2, .01)
-        #self.image = pygame.transform.rotate(self.image, C.math.pi)
-        pass
+    def flips_images(self):
+        """flips all the images in self.animation"""
+        for mylist in self.animation:
+            for i in range(len(mylist)):
+                mylist[i] = pygame.transform.flip(mylist[i], True, True)
 
 
     def update(self,playerlist,attacklist):
         """moves the player, checks if they've been hit, checks if they've died"""
-
         self.rect.x+= self.heading[0]
         #print(self.heading[1]) #del later
         #print(self.rect.y) #del
@@ -142,6 +172,7 @@ class Real_looper(pygame.sprite.Sprite):
         self.heading[0] += self.acceleration_vector[0]
 
         self.heading[1] += self.acceleration_vector[1]
+        print(self.heading[0])
 
 
         if self.heading[0] > 2:
@@ -162,19 +193,22 @@ class Real_looper(pygame.sprite.Sprite):
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
             self.kill()
 
-        #should I shoot?
-        target = closest(self,playerlist)
-        self.fire +=1
-        if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
-            self.fire = 0
-            return("ea",projectile.zeroShot(self.rect.center[0],self.rect.bottom,C.math.pi/2))
 
 
 
-        if self.rect.y > C.screenSize[1]-300 and not self.has_looped:
+        if (self.rect.y > C.screenSize[1]-300 and not self.has_looped) or self.has_looped == "in progress":
             self.loop_de_loop()
         else:
             self.evasive_manuvers()
+
+        self.tim += 1
+
+        #should I shoot?
+        target = closest(self,playerlist)
+        self.fire -=1
+        if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
+            self.fire = 10
+            return("ea",projectile.zeroShot(self.rect.center[0],self.rect.bottom,C.math.pi/2))
 
         #print(self.heading[1])
         #print(self.rect.y)
@@ -303,7 +337,7 @@ SPIN_COUNT = 3
 class SpinPlane(pygame.sprite.Sprite):
     def __init__(self,x,y,direction=1,wing=5,side = "both"):
         super().__init__()#50,38
-        #make animation and angle -pi/2 is up 
+        #make animation and angle -pi/2 is up
         #set original position off screen circle to the right with tails
         self.spritesheet = pygame.image.load(C.getImage("rotatorplane")+".png")
         origImage = [self.gs(0,38*2,50,38),self.gs(50,38*2,50,38)]
@@ -315,7 +349,7 @@ class SpinPlane(pygame.sprite.Sprite):
         for i in range(0,divisions):
             self.animationAngles.append((-C.math.pi/2)+i*units)
             self.animations.append([pygame.transform.rotate(origImage[0],360 - (i*units*180/C.math.pi)),pygame.transform.rotate(origImage[1],360 - (i*units*180/C.math.pi))])
-        self.propCount = 0  
+        self.propCount = 0
         #an inital setting
         self.position = 0
         self.image = self.animations[self.position][0]
@@ -323,16 +357,16 @@ class SpinPlane(pygame.sprite.Sprite):
         self.rect.x=x-self.rect.width/2
         self.rect.y=y-self.rect.height/2
         self.heading = C.angleToVector(self.animationAngles[self.position],SPIN_SPEED)
-        
+
         self.spinDirection = direction
         self.tim = 0 #miain counter
         self.mode = "stright" #stright or circle or oval
-        
+
         self.health=SPIN_HEALTH
-        
-        
-            
-            
+
+
+
+
         if self.rect.right<0:
             self.setSpin(int(SPIN_DIVISIONS/4))
             self.rect.right = -SPIN_BUFFER
@@ -340,13 +374,13 @@ class SpinPlane(pygame.sprite.Sprite):
             self.spinDivision = int(C.screenSize[0]/(SPIN_COUNT+1))
         elif self.rect.left>C.screenSize[0]:
             self.setSpin(3*int(SPIN_DIVISIONS/4))
-            self.rect.left = C.screenSize[0] 
+            self.rect.left = C.screenSize[0]
             self.direction = "left"
             self.spinDivision = (SPIN_COUNT)*int(C.screenSize[0]/(SPIN_COUNT+1))
         self.rect = self.image.get_rect()
         self.rect.x=x-self.rect.width/2
         self.rect.y=y-self.rect.height/2
-        
+
         self.delayCount = SPIN_DELAY
         if wing>0:
             self.delayCount*=-1
@@ -354,12 +388,12 @@ class SpinPlane(pygame.sprite.Sprite):
                 self.kin = SpinPlane(self.rect.x+self.rect.width/2,self.rect.y+self.rect.height/2,direction*-1,wing-1,"both")
             else:
                 self.kin = SpinPlane(self.rect.x+self.rect.width/2,self.rect.y+self.rect.height/2,direction,wing-1,"left")
-            
+
     def update(self,playerlist,attacklist):
         self.rect.x+=self.heading[0]
         self.rect.y+=self.heading[1]
         self.rect.y-=C.backgroundScroll
-        
+
         self.tim +=1
         if self.propCount>1:
             self.image = self.animations[self.position][0]
@@ -377,7 +411,7 @@ class SpinPlane(pygame.sprite.Sprite):
             if self.direction == "right":
                 if self.rect.x+self.rect.width > self.spinDivision:
                     self.spinDivision+=int(C.screenSize[0]/(SPIN_COUNT+1))
-                    if self.spinDivision<C.screenSize[0]+SPIN_BUFFER:   
+                    if self.spinDivision<C.screenSize[0]+SPIN_BUFFER:
                         self.mode = "circle"
                     self.tim = 0
             if self.direction == "left":
@@ -386,7 +420,7 @@ class SpinPlane(pygame.sprite.Sprite):
                     if self.spinDivision>0-SPIN_BUFFER:
                         self.mode = "circle"
                     self.tim = 0
-                
+
         elif self.mode == "oval":#unused
             if self.heading[0]<=0 and self.direction == "left":
                 if self.tim%10 == 0:
@@ -397,7 +431,7 @@ class SpinPlane(pygame.sprite.Sprite):
             elif self.tim%5 == 0:
                 self.spin(self.spinDirection)
 
-            
+
         #hits
         hits=pygame.sprite.spritecollide(self, attacklist, False)
         for i in hits:
@@ -591,18 +625,18 @@ class strafe(pygame.sprite.Sprite):
         self.tim = 0 #miain counter
         self.mode = "stright" #stright or circle or oval
         self.propCount = 0
-        
-            
-            
+
+
+
         if self.rect.right<0:
             self.setSpin(int(self.divisions/4))
             self.rect.right = -10
             self.direction = "right"
         elif self.rect.left>C.screenSize[0]:
             self.setSpin(3*int(self.divisions/4))
-            self.rect.left = C.screenSize[0]+10    
+            self.rect.left = C.screenSize[0]+10
             self.direction = "left"
-            
+
         self.delayCount = -30
         if wing>0:
             self.delayCount*=-1
@@ -614,7 +648,7 @@ class strafe(pygame.sprite.Sprite):
         self.rect.x+=self.heading[0]
         self.rect.y+=self.heading[1]
         self.rect.y-=C.backgroundScroll
-        
+
         self.tim +=1
         if self.propCount>1:
             self.image = self.animations[self.position][0]
@@ -632,7 +666,7 @@ class strafe(pygame.sprite.Sprite):
             if self.tim > 60:
                 self.mode = "circle"
                 self.tim = 0
-                
+
         elif self.mode == "oval":#unused
             if self.heading[0]<=0 and self.direction == "left":
                 if self.tim%10 == 0:
@@ -643,7 +677,7 @@ class strafe(pygame.sprite.Sprite):
             elif self.tim%5 == 0:
                 self.spin(self.spinDirection)
 
-            
+
         #hits
         hits=pygame.sprite.spritecollide(self, attacklist, False)
         for i in hits:
