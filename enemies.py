@@ -193,13 +193,23 @@ class strafer(pygame.sprite.Sprite):
         self.kill()
     def __init__(self,x,y,direction,wing=5,side = "both"):
         super().__init__() #24,24
-        self.spritesheet = pygame.transform.flip(pygame.image.load(C.getImage("Updated0")+".png"),False,True)
+        spritesheet_path = C.os.getcwd() + "/assets/Updated0.png"
+        self.spritesheet = pygame.transform.flip(pygame.image.load(spritesheet_path),False,True)
         self.angles = [0,C.math.pi/4,C.math.pi/2,3*C.math.pi/4,C.math.pi]
         self.anglePos = 2
-        self.animation = [self.gs(1,1,24,24),self.gs(28,1,24,24),self.gs(53,1,24,24),self.gs(79,1,24,24),self.gs(105,0,24,24)]#pygame.transform.scale2x()
+        self.animation = [] #pygame.transform.scale2x()
+        for i in range(4):
+            templist = []
+            for b in range(5):
+                templist.append(self.gs(58*i,45*b,58,45)) # (57-59)ishx45
+            self.animation.append(templist)
+        #self.animation is now a nested list.
+        #[0] rotor no fire, [1] no rotor no fire, [2] rotor fire, [3] no rotor fire
+
         for i in range(len(self.animation)):
-            self.animation[i]=pygame.transform.scale2x(self.animation[i])
-        self.image = self.animation[self.anglePos]
+            for b in range(len(self.animation[i])):
+                self.animation[i][b]=pygame.transform.scale2x(self.animation[i][b])
+        self.image = self.animation[0][self.anglePos]
         #self.image=self.spritesheet
         self.rect=self.image.get_rect()
         if isinstance(x,list):
@@ -218,8 +228,21 @@ class strafer(pygame.sprite.Sprite):
         self.side = side
 
     def update_image(self):
-        if self.fire < 5:
-            pass
+        "updates self.image as appropriate"
+        if self.fire < 5: #mod this val if you want the muzzle flash to be longer
+            if self.tim % 3:
+                tempindex = 2
+            else:
+                tempindex = 3
+        else:
+            if self.tim % 3:
+                tempindex = 0
+            else:
+                tempindex = 1
+
+        self.image = self.animation[tempindex][self.anglePos]
+
+
 
     def update(self,playerlist,attacklist):
 
@@ -270,7 +293,7 @@ class strafer(pygame.sprite.Sprite):
                 if self.anglePos<0:
                     self.anglePos=0
             self.heading=C.angleToVector(self.angles[self.anglePos],2)
-            self.image = self.animation[self.anglePos]
+            self.update_image()
             self.tim = 0
         self.fire +=1
         if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
@@ -285,7 +308,7 @@ class strafer(pygame.sprite.Sprite):
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
             self.kill()
         if self.tim <-10:
-            self.image = self.animation[self.anglePos]
+            self.update_image()
 
 
 
