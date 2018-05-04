@@ -146,7 +146,7 @@ class Real_looper(pygame.sprite.Sprite):
             self.has_looped = "in progress"
             self.spritesheet = pygame.image.load("Hayabusaflip"+".png")
             self.animation[4] = [self.gs(57,0,57,48), self.gs(114,0,57,48)]
-            self.acceleration_vector[1] = - .025
+            self.acceleration_vector[1] = - .03
 
 
         #print(self.heading[1])
@@ -159,15 +159,15 @@ class Real_looper(pygame.sprite.Sprite):
                 self.image = self.animation[4][1]
         if isinstance(self.has_looped, str):
             if self.has_looped == "in progress" and self.heading[1]<=-1:
-                self.animation[4] = [self.gs(0,48,57,48), self.gs(57,48,57,48)]
+                self.animation[4] = [self.gs(0,48,57,48), self.gs(60,48,57,48)]
                 self.has_looped = "in progress2"
             elif self.has_looped == "in progress2" and self.heading[1] <= -2:
-                self.animation[4] = [self.gs(0,96,57,48), self.gs(57,96,57,48)]
+                self.animation[4] = [self.gs(0,96,57,48), self.gs(60,96,57,48)]
                 self.has_looped = "in progress3"
             elif self.has_looped == "in progress3" and self.heading[1] <= -3:
-                self.animation[4] = [self.gs(0,144,57,48), self.gs(57,144,57,48)]
+                self.animation[4] = [self.gs(0,144,57,48), self.gs(60,144,57,48)]
                 self.heading[1] = -3
-                self.has_looped = [30, "4"]
+                self.has_looped = [5, "4"]
                 self.acceleration_vector[1] = 0
 
 
@@ -175,40 +175,36 @@ class Real_looper(pygame.sprite.Sprite):
             if self.has_looped[0] >= 0:
                 self.has_looped[0] -= 1
             elif self.has_looped[1] == "4":
-                self.animation[4] = [self.gs(0,192,57,48), self.gs(57,192,57,48)]
-                self.has_looped[0] = 30
+                self.animation[4] = [self.gs(0,192,57,48), self.gs(60,192,57,48)]
+                self.has_looped[0] = 5
                 self.has_looped[1] = "5"
             elif self.has_looped[1] == "5":
-                self.animation[4] = [self.gs(0,240,57,48), self.gs(57,240,57,48)]
-                self.has_looped[0] = 30
+                self.animation[4] = [self.gs(0,240,57,48), self.gs(60,240,57,48)]
+                self.has_looped[0] = 5
                 self.has_looped[1] = "6"
             elif self.has_looped[1] == "6":
-                self.animation[4] = [self.gs(0,288,57,48), self.gs(57,288,57,48)]
-                self.has_looped[0] = 30
+                self.animation[4] = [self.gs(0,288,57,48), self.gs(60,288,57,48)]
+                self.has_looped[0] = 5
                 self.has_looped[1] = "7"
             elif self.has_looped[1] == "7":
-                self.animation[4] = [self.gs(0,336,57,48), self.gs(57,336,57,48)]
-                self.has_looped[0] = 30
+                self.animation[4] = [self.gs(0,336,57,48), self.gs(60,336,57,48)]
+                self.has_looped[0] = 5
                 self.has_looped[1] = "8"
             elif self.has_looped[1] == "8":
-                self.animation[4] = [self.gs(0,384,57,48), self.gs(57,384,57,48)]
-                self.has_looped[0] = 30
+                self.animation[4] = [self.gs(0,384,57,48), self.gs(60,384,57,48)]
+                self.has_looped[0] = 5
                 self.has_looped[1] = "9"
             elif self.has_looped[1] == "9":
-                self.animation[4] = [self.gs(0,432,57,48), self.gs(57,432,57,48)]
-                self.has_looped[0] = 30
+                self.animation[4] = [self.gs(0,432,57,48), self.gs(60,432,57,48)]
+                self.has_looped[0] = 5
                 self.has_looped[1] = "10"
             elif self.has_looped[1] == "10":
-                self.animation[4] = [self.gs(0,480,57,48), self.gs(57,480,57,48)]
-                self.has_looped[0] = 30
+                self.animation[4] = [self.gs(0,480,57,48), self.gs(60,480,57,48)]
+                self.has_looped[0] = 5
                 self.has_looped[1] = "11"
             elif self.has_looped[1] == "11":
                 self.has_looped = True
                 self.flips_images()
-
-
-        #10
-
 
         #this is really unreadable, and I'm sorry if you're trying to understand it -Keaton
 
