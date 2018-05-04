@@ -209,7 +209,7 @@ class strafer(pygame.sprite.Sprite):
         for i in range(len(self.animation)):
             for b in range(len(self.animation[i])):
                 self.animation[i][b]=pygame.transform.scale2x(self.animation[i][b])
-        self.image = self.animation[0][self.anglePos]
+        self.image = self.animation[0][2]
         #self.image=self.spritesheet
         self.rect=self.image.get_rect()
         if isinstance(x,list):
@@ -220,6 +220,7 @@ class strafer(pygame.sprite.Sprite):
         self.rect.y = y - self.rect.height
         self.heading = C.angleToVector(self.angles[self.anglePos],2)
         self.tim = -30
+        #self.timm = 0
         self.health = 1
         self.first = True
         self.split = True
@@ -229,13 +230,14 @@ class strafer(pygame.sprite.Sprite):
 
     def update_image(self):
         "updates self.image as appropriate"
+
         if self.fire < 5: #mod this val if you want the muzzle flash to be longer
-            if self.tim % 3:
+            if self.tim % 2:
                 tempindex = 2
             else:
                 tempindex = 3
         else:
-            if self.tim % 3:
+            if self.tim % 2:
                 tempindex = 0
             else:
                 tempindex = 1
@@ -245,6 +247,8 @@ class strafer(pygame.sprite.Sprite):
 
 
     def update(self,playerlist,attacklist):
+        self.update_image()
+        print("hello!" + str(self.tim))
 
         if self.rect.y<100:
             self.rect.y+=1
@@ -293,7 +297,6 @@ class strafer(pygame.sprite.Sprite):
                 if self.anglePos<0:
                     self.anglePos=0
             self.heading=C.angleToVector(self.angles[self.anglePos],2)
-            self.update_image()
             self.tim = 0
         self.fire +=1
         if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
@@ -307,8 +310,6 @@ class strafer(pygame.sprite.Sprite):
             self.kill()
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
             self.kill()
-        if self.tim <-10:
-            self.update_image()
 
 
 
