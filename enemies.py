@@ -55,8 +55,9 @@ class Real_looper(pygame.sprite.Sprite):
     def __init__(self,x,y):
         super().__init__()
         self.has_looped = False
-        self.health = 10
-        self.spritesheet = pygame.image.load("Hayabusa"+".png")
+        self.health = 3
+        image_path_name = C.os.getcwd() + "/assets/Hayabusa.png"
+        self.spritesheet = pygame.image.load(image_path_name)
         self.animation = []
         templist = []
         for b in range(4): #0,1,2
@@ -143,8 +144,9 @@ class Real_looper(pygame.sprite.Sprite):
         """also adjusts self.image as appropriate"""
         self.acceleration_vector[0] = -self.heading[0]/3
         if self.heading[1] == 0:
+            image_path_name = C.os.getcwd() + "/assets/Hayabusaflip.png"
             self.has_looped = "in progress"
-            self.spritesheet = pygame.image.load("Hayabusaflip"+".png")
+            self.spritesheet = pygame.image.load(image_path_name)
             self.animation[4] = [self.gs(57,0,57,48), self.gs(114,0,57,48)]
             self.acceleration_vector[1] = - .03
 
