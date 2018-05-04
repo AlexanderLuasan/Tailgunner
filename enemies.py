@@ -64,14 +64,17 @@ class Real_looper(pygame.sprite.Sprite):
                 templist.append(pygame.transform.flip(self.gs(56*b,48*i,57,48), False, True))
             self.animation.append(templist)
             templist = []
+        self.animation.append([])
+        print(len(self.animation))
 
         #self.animation is a nested list
         #self.animation[0] is a list of rotor, nonfiring images
         #self.animation[1] is a list of non rotor, nonfiring images
         #[2] and [3] are [0] and [1], but firing
+        #[4] contains loop images, and will be altered durring the loop func
         #in these nested lists, 0 = leftmost heading, 2 = forward heading, 4 = rightmost heading
         self.image = self.animation[3][2]
-        self.heading = [0,-1]
+        self.heading = [0,0]
         self.acceleration_vector = [0,0]
         self.rect = self.image.get_rect()
         self.rect.x = x + self.rect.width/2
@@ -105,18 +108,12 @@ class Real_looper(pygame.sprite.Sprite):
         """updates  self.image as apropriate to the current heading and status"""
         currentx = self.heading[0]
 
-        #flips currentx if y direction is negative
-        """
-        if self.heading[1]> -2:
-            pass
-        else:
-            currentx = -currentx
-        """
+
 
         #selects the animation list, as appropriate.
         #if firing, it'll select a list from self.animation that contains firing sprites
         #rotors are dependent on self.tim, and flip every update
-        if self.fire > 0:
+        if self.fire < 5:
             if self.tim % 3:
                 animations_list = self.animation[2]
             else:
@@ -143,24 +140,87 @@ class Real_looper(pygame.sprite.Sprite):
 
     def loop_de_loop(self):
         """makes y accel negative until a certain y velocity is hit, then sets self.has_looped to true"""
-        self.acceleration_vector[1] = - .025
-        self.acceleration_vector[0] = -self.heading[0]/2
-        self.has_looped = "in progress"
-        #print(self.heading[1])
+        """also adjusts self.image as appropriate"""
+        self.acceleration_vector[0] = -self.heading[0]/3
+        if self.heading[1] == 0:
+            self.has_looped = "in progress"
+            self.spritesheet = pygame.image.load("Hayabusaflip"+".png")
+            self.animation[4] = [self.gs(57,0,57,48), self.gs(114,0,57,48)]
+            self.acceleration_vector[1] = - .025
 
-        if self.heading[1] < -3:
-            self.heading[1] = -3
-            self.has_looped = True
-            self.acceleration_vector[1] = 0
-            self.flips_images()
-            print("looped")
+
+        #print(self.heading[1])
+        if self.heading[1] > -1:
+            self.update_image()
+        else:
+            if self.tim % 3:
+                self.image = self.animation[4][0]
+            else:
+                self.image = self.animation[4][1]
+        if isinstance(self.has_looped, str):
+            if self.has_looped == "in progress" and self.heading[1]<=-1:
+                self.animation[4] = [self.gs(0,48,57,48), self.gs(57,48,57,48)]
+                self.has_looped = "in progress2"
+            elif self.has_looped == "in progress2" and self.heading[1] <= -2:
+                self.animation[4] = [self.gs(0,96,57,48), self.gs(57,96,57,48)]
+                self.has_looped = "in progress3"
+            elif self.has_looped == "in progress3" and self.heading[1] <= -3:
+                self.animation[4] = [self.gs(0,144,57,48), self.gs(57,144,57,48)]
+                self.heading[1] = -3
+                self.has_looped = [30, "4"]
+                self.acceleration_vector[1] = 0
+
+
+        elif isinstance(self.has_looped, list):
+            if self.has_looped[0] >= 0:
+                self.has_looped[0] -= 1
+            elif self.has_looped[1] == "4":
+                self.animation[4] = [self.gs(0,192,57,48), self.gs(57,192,57,48)]
+                self.has_looped[0] = 30
+                self.has_looped[1] = "5"
+            elif self.has_looped[1] == "5":
+                self.animation[4] = [self.gs(0,240,57,48), self.gs(57,240,57,48)]
+                self.has_looped[0] = 30
+                self.has_looped[1] = "6"
+            elif self.has_looped[1] == "6":
+                self.animation[4] = [self.gs(0,288,57,48), self.gs(57,288,57,48)]
+                self.has_looped[0] = 30
+                self.has_looped[1] = "7"
+            elif self.has_looped[1] == "7":
+                self.animation[4] = [self.gs(0,336,57,48), self.gs(57,336,57,48)]
+                self.has_looped[0] = 30
+                self.has_looped[1] = "8"
+            elif self.has_looped[1] == "8":
+                self.animation[4] = [self.gs(0,384,57,48), self.gs(57,384,57,48)]
+                self.has_looped[0] = 30
+                self.has_looped[1] = "9"
+            elif self.has_looped[1] == "9":
+                self.animation[4] = [self.gs(0,432,57,48), self.gs(57,432,57,48)]
+                self.has_looped[0] = 30
+                self.has_looped[1] = "10"
+            elif self.has_looped[1] == "10":
+                self.animation[4] = [self.gs(0,480,57,48), self.gs(57,480,57,48)]
+                self.has_looped[0] = 30
+                self.has_looped[1] = "11"
+            elif self.has_looped[1] == "11":
+                self.has_looped = True
+                self.flips_images()
+
+
+        #10
+
+
+        #this is really unreadable, and I'm sorry if you're trying to understand it -Keaton
+
+
+
+
 
     def flips_images(self):
         """flips all the images in self.animation"""
         for mylist in self.animation:
             for i in range(len(mylist)):
                 mylist[i] = pygame.transform.flip(mylist[i], False, True)
-        print("hello!")
 
 
     def update(self,playerlist,attacklist):
@@ -196,7 +256,7 @@ class Real_looper(pygame.sprite.Sprite):
 
 
 
-        if (self.rect.y > C.screenSize[1]-200 and not self.has_looped) or self.has_looped == "in progress":
+        if self.rect.y > C.screenSize[1]-200 or not isinstance(self.has_looped,bool):
             self.loop_de_loop()
         else:
             self.evasive_manuvers()
@@ -205,9 +265,9 @@ class Real_looper(pygame.sprite.Sprite):
 
         #should I shoot?
         target = closest(self,playerlist)
-        self.fire -=1
+        self.fire +=1
         if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
-            self.fire = 10
+            self.fire = 0
             return("ea",projectile.zeroShot(self.rect.center[0],self.rect.bottom,C.math.pi/2))
 
         #print(self.heading[1])
