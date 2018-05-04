@@ -185,8 +185,8 @@ class Real_looper(pygame.sprite.Sprite):
 class strafer(pygame.sprite.Sprite):
     def gs(self,x,y,dx,dy):
         gsimage = pygame.Surface([dx, dy])
-        gsimage.fill((234,154,45))
-        gsimage.set_colorkey((234,154,45))
+        gsimage.fill((255,255,255))
+        gsimage.set_colorkey((255,255,255))
         gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
         return gsimage
     def crash(self):
