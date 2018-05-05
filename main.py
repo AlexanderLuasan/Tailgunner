@@ -63,8 +63,9 @@ def singlePlaneLevel(name,lives):
                     world.enemeys.add(world.enemies.Real_looper(620,-50))
                     world.enemeys.add(world.powerUp('sheild'))
                 elif event.key == 101: #e
-                    world.enemeys.add(world.enemies.Test_plane(620,-50))
-                    world.enemeys.add(world.enemies.Test_plane2(700,-50))            
+                    #world.enemeys.add(world.enemies.Test_plane(620,-50))
+                    #world.enemeys.add(world.enemies.Test_plane2(700,-50))  
+                    pass          
                 else:
                     print(event.key)
             elif event.type == pygame.KEYUP:
