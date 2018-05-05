@@ -220,7 +220,6 @@ class strafer(pygame.sprite.Sprite):
         self.rect.y = y - self.rect.height
         self.heading = C.angleToVector(self.angles[self.anglePos],2)
         self.tim = -30
-        #self.timm = 0
         self.health = 1
         self.first = True
         self.split = True
@@ -228,27 +227,40 @@ class strafer(pygame.sprite.Sprite):
         self.wings = wing-1
         self.side = side
 
+        self.timm = 0
+        if self.wings == 4:
+            self.keatflag = True
+        else:
+            self.keatflag = False
+
     def update_image(self):
         "updates self.image as appropriate"
+        if self.keatflag:
+            print("hello!" + str(self.timm))
+        else:
+            pass
 
         if self.fire < 5: #mod this val if you want the muzzle flash to be longer
-            if self.tim % 2:
+            if self.timm % 3:
                 tempindex = 2
             else:
                 tempindex = 3
         else:
-            if self.tim % 2:
+            if self.timm % 3:
                 tempindex = 0
             else:
                 tempindex = 1
+
+        self.timm += 1
 
         self.image = self.animation[tempindex][self.anglePos]
 
 
 
+
+
     def update(self,playerlist,attacklist):
-        self.update_image()
-        print("hello!" + str(self.tim))
+        #print("hello!" + str(self.tim))
 
         if self.rect.y<100:
             self.rect.y+=1
@@ -281,16 +293,17 @@ class strafer(pygame.sprite.Sprite):
                         self.anglePos = C.random.randint(0,4)
                         self.heading=C.angleToVector(self.angles[self.anglePos],2)
             return None
+        self.update_image()
         self.rect.x+=self.heading[0]
         self.rect.y+=self.heading[1]
+        self.tim+=1
         target = closest(self,playerlist)
         if target==None:
             return None
-        self.tim+=1
         if self.tim >C.PlayerFPS/C.enemiesFPS*30:
             if target.rect.x<self.rect.x:
                 self.anglePos+=1
-                if self.anglePos>=len(self.animation):
+                if self.anglePos>=len(self.animation[0]):
                     self.anglePos-=1
             elif target.rect.x>self.rect.x:
                 self.anglePos-=1
