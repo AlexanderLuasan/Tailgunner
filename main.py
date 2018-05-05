@@ -61,11 +61,10 @@ def singlePlaneLevel(name,lives):
                     turretComb.append(100)
                 elif event.key == 113: #q
                     world.enemeys.add(world.enemies.Real_looper(620,-50))
+                    world.enemeys.add(world.powerUp('sheild'))
                 elif event.key == 101: #e
                     world.enemeys.add(world.enemies.Test_plane(620,-50))
-                    world.enemeys.add(world.enemies.Test_plane2(700,-50))
-                elif event.key == 113:
-                    world.enemeys.add(world.enemies.SpinPlane(-50,200))
+                    world.enemeys.add(world.enemies.Test_plane2(700,-50))            
                 else:
                     print(event.key)
             elif event.type == pygame.KEYUP:
@@ -149,12 +148,15 @@ def singlePlaneLevel(name,lives):
                             pygame.mixer.music.load("projectile.wav")
                             pygame.mixer.music.play()
                 elif action[0] == "explosion":
-                    print("explosion")
-                    pass
+                    print("explosion1")
+                    world.explode(i)
+                    
 
 
 
         for i in world.attacks:
+            i.update()
+        for i in world.FX:
             i.update()
 
         if other==True:

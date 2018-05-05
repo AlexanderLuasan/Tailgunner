@@ -78,20 +78,27 @@ def spawn():
     e=enemies.strafer([100,constants.screenSize[0]-100],-10,constants.math.pi/2)
     enemeys.add(e)
 
-
+def explode(obj):
+    bits = fx.makeExplosion(obj)
+    for i in bits:
+        FX.add(i)
 def drawall():
     global screen
     screen.fill((0,0,255))
     backgrounds.draw(screen)
+    
+    enemeys.draw(screen)
     players.draw(screen)
     attacks.draw(screen)
-    enemeys.draw(screen)
     enemeyattacks.draw(screen)
+    
     huds.draw(screen)
     FX.draw(screen)
     for i in players:
         if i.iframesCount>0:
             screen=fx.flicker(i,screen)
+        if i.sheild==True:
+            fx.sheild(i.rect,screen)
         
     pygame.display.flip()
 
@@ -126,7 +133,40 @@ def moveWorld():
         i.rect.y+=constants.backgroundScroll
         i.check()
    '''  
-    
+
+class powerUp(pygame.sprite.Sprite):
+    def __init__(self,powerUpType,):
+        super().__init__()
+        self.powerUp = powerUpType
+        #sort by type
+        image="shieldPU.png"
+        self.image=pygame.image.load("assets/"+image)
+        self.rect = self.image.get_rect()
+        self.rect.x=-100
+        self.rect.y=-100
+        s=enemies.SpinPlane(-50,200)
+        enemeys.add(s)
+        self.powerPlanes = pygame.sprite.Group()
+        for i in s.collectKin():
+            self.powerPlanes.add(i)
+        self.powerPlanes.add(s)
+        
+    def update(self,playerlist,attacklist):
+
+        if len(self.powerPlanes)>1:
+            self.rect.y-=constants.backgroundScroll
+        elif len(self.powerPlanes)==1:
+            for i in self.powerPlanes:
+                self.rect.center = i.rect.center
+        else:
+            pass
+        if abs(self.rect.x-constants.screenSize[0]/2)>1000 or abs(self.rect.y-constants.screenSize[1]/2)>1000:
+            self.kill()
+    def crash(self):
+        return "powerup"
+        
+        
+        
 def rotate(angle):
     #all the stuff needs to be rotated
     

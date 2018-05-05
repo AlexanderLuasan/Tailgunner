@@ -450,7 +450,8 @@ class SpinPlane(pygame.sprite.Sprite):
         for i in range(0,divisions):
             self.animationAngles.append((-C.math.pi/2)+i*units)
             self.animations.append([pygame.transform.rotate(origImage[0],360 - (i*units*180/C.math.pi)),pygame.transform.rotate(origImage[1],360 - (i*units*180/C.math.pi))])
-        self.propCount = 0
+        self.propCount = 0  
+        self.dead = False
         #an inital setting
         self.position = 0
         self.image = self.animations[self.position][0]
@@ -482,6 +483,9 @@ class SpinPlane(pygame.sprite.Sprite):
         self.rect.x=x-self.rect.width/2
         self.rect.y=y-self.rect.height/2
 
+        
+        self.kin=None
+
         self.delayCount = SPIN_DELAY
         if wing>0:
             self.delayCount*=-1
@@ -489,6 +493,16 @@ class SpinPlane(pygame.sprite.Sprite):
                 self.kin = SpinPlane(self.rect.x+self.rect.width/2,self.rect.y+self.rect.height/2,direction*-1,wing-1,"both")
             else:
                 self.kin = SpinPlane(self.rect.x+self.rect.width/2,self.rect.y+self.rect.height/2,direction,wing-1,"left")
+
+    def collectKin(self):
+        if self.kin==None:
+            return []
+        else:
+            lowerplanes = self.kin.collectKin()
+            lowerplanes.append(self.kin)
+            return lowerplanes
+
+
 
     def update(self,playerlist,attacklist):
         self.rect.x+=self.heading[0]
@@ -539,8 +553,10 @@ class SpinPlane(pygame.sprite.Sprite):
             temp=i.hit()
             self.health-=temp
         if self.health<=0:
+            self.dead = True
             self.kill()
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
+            self.dead = True
             self.kill()
         if self.delayCount>0:
             self.delayCount-=1
@@ -553,6 +569,7 @@ class SpinPlane(pygame.sprite.Sprite):
         gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
         return gsimage
     def crash(self):
+        self.dead = True
         self.kill()
     def setSpin(self,position):#sets image and angle
         self.position=position
