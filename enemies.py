@@ -228,6 +228,7 @@ class strafer(pygame.sprite.Sprite):
         self.side = side
 
         self.timm = 0
+
         if self.wings == 4:
             self.keatflag = True
         else:
@@ -235,25 +236,26 @@ class strafer(pygame.sprite.Sprite):
 
     def update_image(self):
         "updates self.image as appropriate"
-        if self.keatflag:
-            print("hello!" + str(self.timm))
-        else:
-            pass
-
-        if self.fire < 5: #mod this val if you want the muzzle flash to be longer
-            if self.timm % 3:
-                tempindex = 2
-            else:
-                tempindex = 3
-        else:
+        self.timm += 1
+        if self.rect.y<100:
             if self.timm % 3:
                 tempindex = 0
             else:
                 tempindex = 1
+            self.image = self.animation[tempindex][2]
 
-        self.timm += 1
-
-        self.image = self.animation[tempindex][self.anglePos]
+        else:
+            if self.fire < 5: #mod this val if you want the muzzle flash to be longer
+                if self.timm % 3:
+                    tempindex = 2
+                else:
+                    tempindex = 3
+            else:
+                if self.timm % 3:
+                    tempindex = 0
+                else:
+                    tempindex = 1
+            self.image = self.animation[tempindex][self.anglePos]
 
 
 
@@ -261,7 +263,7 @@ class strafer(pygame.sprite.Sprite):
 
     def update(self,playerlist,attacklist):
         #print("hello!" + str(self.tim))
-
+        self.update_image()
         if self.rect.y<100:
             self.rect.y+=1
             if self.first == True:
@@ -293,7 +295,6 @@ class strafer(pygame.sprite.Sprite):
                         self.anglePos = C.random.randint(0,4)
                         self.heading=C.angleToVector(self.angles[self.anglePos],2)
             return None
-        self.update_image()
         self.rect.x+=self.heading[0]
         self.rect.y+=self.heading[1]
         self.tim+=1
