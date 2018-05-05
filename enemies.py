@@ -205,10 +205,11 @@ class strafer(pygame.sprite.Sprite):
             self.animation.append(templist)
         #self.animation is now a nested list.
         #[0] rotor no fire, [1] no rotor no fire, [2] rotor fire, [3] no rotor fire
-
+        """
         for i in range(len(self.animation)):
             for b in range(len(self.animation[i])):
                 self.animation[i][b]=pygame.transform.scale2x(self.animation[i][b])
+        """
         self.image = self.animation[0][2]
         #self.image=self.spritesheet
         self.rect=self.image.get_rect()
