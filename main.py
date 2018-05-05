@@ -121,10 +121,13 @@ def singlePlaneLevel(name,lives):
             if action !=None:
                 if action[0]=="ea":
                     world.enemeyattacks.add(action[1])
-                if action[0]=="ep":
+                elif action[0]=="ep":
                     for i in range(len(action)):
                         if i != 0:
                             world.enemeys.add(action[i])
+                elif action[0] == "explosion":
+                    print("explosion1")
+                    world.explode(i)
 
 
 
