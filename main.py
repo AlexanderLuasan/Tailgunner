@@ -113,7 +113,7 @@ def singlePlaneLevel(name,lives):
                         hero2.adjustHeading([1,0])                 
                 elif event.key == 113: #q
                     world.enemeys.add(world.enemies.Real_looper(620,-50))
-                    world.enemeys.add(world.powerUp('sheild'))
+                    world.enemeys.add(world.powerUp('life'))
                 elif event.key == 101: #e
                     #world.enemeys.add(world.enemies.Test_plane(620,-50))
                     #world.enemeys.add(world.enemies.Test_plane2(700,-50))  
@@ -158,11 +158,11 @@ def singlePlaneLevel(name,lives):
                         hero.fireToggle(False)
                     elif playerOneDead==True:
                         hero2.fireTurret(False)
-                elif event.key == 32:
-                    if playerTwoDead == True:
-                        hero.fireTurret(False)
-                    elif playerTwoDead == False:
+                elif event.key == 104:
+                    if playerTwoDead == False:
                         hero2.fireToggle(False)
+                    elif playerTwoDead == True:
+                        hero2.fireTurret(False)
                 elif event.key == 119:
                     if playerTwoDead == True:
                         pass
@@ -244,9 +244,10 @@ def singlePlaneLevel(name,lives):
                     
                     if action[2] == "playerOne":
                         playerOneDead = True
+                        hero2.COOP(True)
                     elif action[2] == "playerTwo":
                         playerTwoDead = True
-                        
+                        hero.COOP(True)
                 elif action[0] == "fire":
                     for i in action:
                         if i != "fire":
@@ -257,7 +258,17 @@ def singlePlaneLevel(name,lives):
                 elif action[0] == "explosion":
                     print("explosion1")
                     world.explode(i)
-                    
+                elif action[0] == "revive":
+                    if playerOneDead == True:
+                        hero = world.player.player(i.rect.y+i.rect.height,i.rect.x+i.rect.width,deadplayer[0],deadplayer[1],deadplayer[2])
+                        i.COOP(False)
+                        playerOneDead = False
+                        world.players.add(hero)
+                    elif playerTwoDead == True:
+                        hero2 = world.player.player(i.rect.y+i.rect.height,i.rect.x+i.rect.width,deadplayer[0],deadplayer[1],deadplayer[2])
+                        playerTwoDead = False
+                        i.COOP(False)
+                        world.players.add(hero2)
 
 
 

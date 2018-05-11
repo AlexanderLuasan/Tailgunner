@@ -180,14 +180,16 @@ class player(pygame.sprite.Sprite):
         
         
         #stat bars
-        self.healthBar = hudBar(20,C.screenSize[1]-100,"right",1,1,(255,0,0))
-        self.gunBar = hudBar(40,C.screenSize[1]-100,"right",100,100,(255,255,0))
-        self.ammmoDisplay = counter("right")
-        self.airBar = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,0,255))
+        self.healthBar = hudBar(20,C.screenSize[1]-100,self.side,1,1,(255,0,0))
+        self.gunBar = hudBar(40,C.screenSize[1]-100,self.side,100,100,(255,255,0))
+        self.ammmoDisplay = counter(self.side)
+        self.airBar = hudBar(60,C.screenSize[1]-100,self.side,100,100,(255,0,255))
         self.allbar = [self.airBar,self.gunBar,self.healthBar]
         #coop bars
-
-        self.ammo1 = hudBar(60,C.screenSize[1]-100,"left",100,100,(255,255,0),hidden=True)#left
+        if self.side=="right":
+            self.ammo1 = hudBar(60,C.screenSize[1]-100,"left",100,100,(255,255,0),hidden=True)#left
+        else:
+            self.ammo1 = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,255,0),hidden=True)#left
         self.allbar.append(self.ammo1)
             
 
@@ -211,6 +213,7 @@ class player(pygame.sprite.Sprite):
         self.turretBulletCount = 0
         self.powerupCount = 3
         self.powerupangle = 0
+        self.revive = False
         #for rotation
         self.powerupdirection = 1
         #for shield
@@ -230,7 +233,10 @@ class player(pygame.sprite.Sprite):
             self.mainFireCount-=1
         if self.turretFireCount>0:
             self.turretFireCount-=1
-
+        if self.revive == True:
+            self.revive=False
+            return ("revive","")
+        
         shots = ["fire"]
         add=self.turretFire()
         for i in add:
@@ -548,6 +554,13 @@ class player(pygame.sprite.Sprite):
         self.healthBar.adjv(1)
         if powerUpType=="sheild":
             self.sheild = True
+        elif powerUpType=="life":
+            self.revive = True
+    def COOP(self,state):
+        if state:
+            self.ammo1.hidden = False
+        elif not state:
+            self.ammo1.hidden = True
 
 
 
