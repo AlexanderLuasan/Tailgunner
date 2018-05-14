@@ -13,9 +13,12 @@ mainmenu
 chose campain(what layout) level map
 chose level
 '''
-#player1
+#player1 if dies guns for player two
+#player2 if dies guns for player one
 
-print(len(world.huds))
+
+
+
 fullexit=False
 
 def singlePlaneLevel(name,lives):
@@ -25,10 +28,21 @@ def singlePlaneLevel(name,lives):
     lives = lives
     tim = 0
     turretComb = []
-    hero = world.player.player(100,C.screenSize[1],"FinalSprite",[64,64])
+    
+    deadplayer = ["","","",""]
+    hero = world.player.player(100,C.screenSize[1],"FinalSprite","left","playerOne")
+    hero2 = world.player.player(100,C.screenSize[1],"FinalSprite","right","playerTwo")
     world.players.add(hero)
+    world.players.add(hero2)
+    playerOneDead = False
+    playerTwoDead = False
+    
+    
     for i in hero.getHud():
         world.huds.add(i)
+    for i in hero2.getHud():
+        world.huds.add(i)
+    
     while not done:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -36,32 +50,70 @@ def singlePlaneLevel(name,lives):
                 fullexit = True
             elif event.type == pygame.KEYDOWN:
                 if event.key==276:
-                    hero.adjustHeading([-1,0])
+                    if playerOneDead == False:
+                        hero.adjustHeading([-1,0])
+                    elif playerOneDead==True:
+                        turretComb.append(119)
                 elif event.key==273:
-                    hero.adjustHeading([0,-1])
+                    if playerOneDead == False:
+                        hero.adjustHeading([0,-1])
+                    elif playerOneDead==True:
+                        turretComb.append(97)                     
                 elif event.key==275:
-                    hero.adjustHeading([1,0])
+                    if playerOneDead == False:
+                        hero.adjustHeading([1,0])
+                    elif playerOneDead==True:
+                        turretComb.append(115)                    
                 elif event.key==274:
-                    hero.adjustHeading([0,1])
+                    if playerOneDead == False:
+                        hero.adjustHeading([0,1])
+                    elif playerOneDead==True:
+                        turretComb.append(119)                    
                 elif event.key == 122:
-                    hero.setRoll(-1)
-                elif event.key == 120:
-                    hero.fireToggle(True)
+                    if playerOneDead == False:
+                        hero.setRoll(-1)
                 elif event.key == 99:
-                    hero.setRoll(1)
-                elif event.key == 32:
-                    hero.fireTurret(True)
+                    if playerOneDead == False:
+                        hero.setRoll(1)
+                elif event.key == 103:
+                    if playerTwoDead == False:
+                        hero2.setRoll(-1)
+                elif event.key == 106:
+                    if playerTwoDead == False:
+                        hero2.setRoll(1)                
+                elif event.key == 120:
+                    if playerOneDead == False:
+                        hero.fireToggle(True)
+                    elif playerOneDead==True:
+                        hero2.fireTurret(True)
+                elif event.key == 104:
+                    if playerTwoDead == True:
+                        hero.fireTurret(True)
+                    elif playerTwoDead == False:
+                        hero2.fireToggle(True)
                 elif event.key == 119:
-                    turretComb.append(119)
+                    if playerTwoDead == True:
+                        turretComb.append(119)
+                    elif playerTwoDead == False:
+                        hero2.adjustHeading([0,-1])
                 elif event.key == 97:
-                    turretComb.append(97)
+                    if playerTwoDead == True:
+                        turretComb.append(97)
+                    elif playerTwoDead == False:
+                        hero2.adjustHeading([-1,0])
                 elif event.key == 115:
-                    turretComb.append(115)
+                    if playerTwoDead == True:
+                        turretComb.append(115)
+                    elif playerTwoDead == False:
+                        hero2.adjustHeading([0,1])
                 elif event.key == 100:
-                    turretComb.append(100)
+                    if playerTwoDead == True:
+                        turretComb.append(100)
+                    elif playerTwoDead == False:
+                        hero2.adjustHeading([1,0])                 
                 elif event.key == 113: #q
                     world.enemeys.add(world.enemies.Real_looper(620,-50))
-                    world.enemeys.add(world.powerUp('sheild'))
+                    world.enemeys.add(world.powerUp('life'))
                 elif event.key == 101: #e
                     #world.enemeys.add(world.enemies.Test_plane(620,-50))
                     #world.enemeys.add(world.enemies.Test_plane2(700,-50))  
@@ -70,24 +122,69 @@ def singlePlaneLevel(name,lives):
                     print(event.key)
             elif event.type == pygame.KEYUP:
                 if event.key==276:
-                    hero.adjustHeading([1,0])
+                    if playerOneDead == False:
+                        hero.adjustHeading([1,0])
+                    elif playerOneDead==True:
+                        pass
                 elif event.key==273:
-                    hero.adjustHeading([0,1])
+                    if playerOneDead == False:
+                        hero.adjustHeading([0,1])
+                    elif playerOneDead==True:
+                        pass                    
                 elif event.key==275:
-                    hero.adjustHeading([-1,0])
+                    if playerOneDead == False:
+                        hero.adjustHeading([-1,0])
+                    elif playerOneDead==True:
+                        pass                   
                 elif event.key==274:
-                    hero.adjustHeading([0,-1])
+                    if playerOneDead == False:
+                        hero.adjustHeading([0,-1])
+                    elif playerOneDead==True:
+                        pass                    
                 elif event.key == 122:
-                    hero.setRoll(0)
-                elif event.key == 120:
-                    hero.fireToggle(False)
+                    if playerOneDead == False:
+                        hero.setRoll(0)
                 elif event.key == 99:
-                    hero.setRoll(0)
-                elif event.key == 32:
-                    hero.fireTurret(False)                
+                    if playerOneDead == False:
+                        hero.setRoll(0)
+                elif event.key == 103:
+                    if playerTwoDead == False:
+                        hero2.setRoll(0)
+                elif event.key == 106:
+                    if playerTwoDead == False:
+                        hero2.setRoll(0)                
+                elif event.key == 120:
+                    if playerOneDead == False:
+                        hero.fireToggle(False)
+                    elif playerOneDead==True:
+                        hero2.fireTurret(False)
+                elif event.key == 104:
+                    if playerTwoDead == False:
+                        hero2.fireToggle(False)
+                    elif playerTwoDead == True:
+                        hero2.fireTurret(False)
+                elif event.key == 119:
+                    if playerTwoDead == True:
+                        pass
+                    elif playerTwoDead == False:
+                        hero2.adjustHeading([0,1])
+                elif event.key == 97:
+                    if playerTwoDead == True:
+                        pass
+                    elif playerTwoDead == False:
+                        hero2.adjustHeading([1,0])
+                elif event.key == 115:
+                    if playerTwoDead == True:
+                        pass
+                    elif playerTwoDead == False:
+                        hero2.adjustHeading([0,-1])
+                elif event.key == 100:
+                    if playerTwoDead == True:
+                        pass
+                    elif playerTwoDead == False:
+                        hero2.adjustHeading([-1,0])                             
 
         if len(turretComb)>0:
-
             if 119 in turretComb and 97 in turretComb:
                 hero.setTurretHeading([-1,1])
             elif 97 in turretComb  and 115 in turretComb:
@@ -138,12 +235,19 @@ def singlePlaneLevel(name,lives):
         for i in world.players:
             action = i.update(world.enemeys,world.enemeyattacks)
             if action != None:
+                #return("respawn",(self.rect.center),self.name,self.side,self.spritesheetname)
                 if action[0] == "respawn":
                     i.kill()
-                    hero = world.player.player(action[1][0]-68/2,C.screenSize[1],"FinalSprite",[68,68])
-                    world.players.add(hero)
-                    for i in hero.getHud():
-                        world.huds.add(i)
+                    deadplayer[2] = action[2]#name
+                    deadplayer[1] = action[3]#side
+                    deadplayer[0] = action[4]#image
+                    
+                    if action[2] == "playerOne":
+                        playerOneDead = True
+                        hero2.COOP(True)
+                    elif action[2] == "playerTwo":
+                        playerTwoDead = True
+                        hero.COOP(True)
                 elif action[0] == "fire":
                     for i in action:
                         if i != "fire":
@@ -154,7 +258,17 @@ def singlePlaneLevel(name,lives):
                 elif action[0] == "explosion":
                     print("explosion1")
                     world.explode(i)
-                    
+                elif action[0] == "revive":
+                    if playerOneDead == True:
+                        hero = world.player.player(i.rect.y+i.rect.height,i.rect.x+i.rect.width,deadplayer[0],deadplayer[1],deadplayer[2])
+                        i.COOP(False)
+                        playerOneDead = False
+                        world.players.add(hero)
+                    elif playerTwoDead == True:
+                        hero2 = world.player.player(i.rect.y+i.rect.height,i.rect.x+i.rect.width,deadplayer[0],deadplayer[1],deadplayer[2])
+                        playerTwoDead = False
+                        i.COOP(False)
+                        world.players.add(hero2)
 
 
 

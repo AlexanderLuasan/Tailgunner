@@ -3,7 +3,7 @@ import constants as C
 import projectile
 
 maskingtester = pygame.sprite.GroupSingle()
-COOP = True
+COOP = False
 #draws health bar
 ROTATIONANGLE = .1
 ERRORANGLE=.01
@@ -33,7 +33,7 @@ class counter(pygame.sprite.Sprite):
         self.place()
         
 class hudBar(pygame.sprite.Sprite):
-    def __init__(self,x,y,side,maxV,currentV,color):
+    def __init__(self,x,y,side,maxV,currentV,color,hidden=False):
         super().__init__()
         self.maxV = maxV
         self.currentV = currentV
@@ -42,6 +42,7 @@ class hudBar(pygame.sprite.Sprite):
         self.y=y  
         self.color = color
         self.placebar()
+        self.hidden = hidden
         
         #place bar
         
@@ -83,10 +84,12 @@ class player(pygame.sprite.Sprite):
         gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
         return gsimage
     
-    def __init__(self,x,y,spritesheet,size):
+    def __init__(self,x,y,spritesheet,side,name):
         super().__init__() #(68,68) spaceing(0,0), (0,0)
         
-        
+        self.name=name
+        self.side = side
+        self.spritesheetname = spritesheet
         self.tempangle = -C.math.pi/2
         #setting up animation sets
         self.spritesheet = pygame.image.load(C.getImage(spritesheet)+".png")
@@ -177,20 +180,19 @@ class player(pygame.sprite.Sprite):
         
         
         #stat bars
-        self.healthBar = hudBar(20,C.screenSize[1]-100,"right",1,1,(255,0,0))
-        self.gunBar = hudBar(40,C.screenSize[1]-100,"right",100,100,(255,255,0))
-        self.ammmoDisplay = counter("right")
-        self.airBar = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,0,255))
+        self.healthBar = hudBar(20,C.screenSize[1]-100,self.side,1,1,(255,0,0))
+        self.gunBar = hudBar(40,C.screenSize[1]-100,self.side,100,100,(255,255,0))
+        self.ammmoDisplay = counter(self.side)
+        self.airBar = hudBar(60,C.screenSize[1]-100,self.side,100,100,(255,0,255))
         self.allbar = [self.airBar,self.gunBar,self.healthBar]
         #coop bars
-        if COOP==True:
-            self.ammo1 = hudBar(60,C.screenSize[1]-100,"left",100,100,(255,255,0))#left
-            self.allbar.append(self.ammo1)
-            self.ammo2 = hudBar(40,C.screenSize[1]-100,"left",100,100,(255,255,0))#middle
-            self.allbar.append(self.ammo2)
-            self.ammo3 = hudBar(20,C.screenSize[1]-100,"left",100,100,(255,255,0))#right
-            self.allbar.append(self.ammo3)       
+        if self.side=="right":
+            self.ammo1 = hudBar(60,C.screenSize[1]-100,"left",100,100,(255,255,0),hidden=True)#left
+        else:
+            self.ammo1 = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,255,0),hidden=True)#left
+        self.allbar.append(self.ammo1)
             
+
         #extra frame conter
         self.other = True
         #firing variables
@@ -211,6 +213,7 @@ class player(pygame.sprite.Sprite):
         self.turretBulletCount = 0
         self.powerupCount = 3
         self.powerupangle = 0
+        self.revive = False
         #for rotation
         self.powerupdirection = 1
         #for shield
@@ -230,11 +233,15 @@ class player(pygame.sprite.Sprite):
             self.mainFireCount-=1
         if self.turretFireCount>0:
             self.turretFireCount-=1
-
+        if self.revive == True:
+            self.revive=False
+            return ("revive","")
+        
         shots = ["fire"]
         add=self.turretFire()
         for i in add:
             shots.append(i)
+        
         add=self.mainFire()
         for i in add:
             shots.append(i)        
@@ -244,7 +251,7 @@ class player(pygame.sprite.Sprite):
     def turretFire(self):
         end = []
         if self.turretfire and self.ammo1.getV()>0 and self.turretFireCount<1:
-            
+
             if self.turretheading[0]!=0:
                 shots=self.makeSpecialShots(self.turretFireMode,C.vectorToAngle([self.turretheading[0],self.turretheading[1]*-1]))
             else:
@@ -375,13 +382,13 @@ class player(pygame.sprite.Sprite):
             self.image.set_alpha(0)
             return("explosion","none")
             #image invisable
-        if self.deathdelay<-60*6:
+        if self.deathdelay<-5:
             self.deathdelay = 10
             self.respawn= True
             self.iframesCount=5
             for i in self.allbar:
                 i.kill()
-            return("respawn",(self.rect.center))
+            return("respawn",(self.rect.center),self.name,self.side,self.spritesheetname)
     def setRoll(self,direction):
         #to enter a roll and set tillt
         self.roll = direction
@@ -547,6 +554,13 @@ class player(pygame.sprite.Sprite):
         self.healthBar.adjv(1)
         if powerUpType=="sheild":
             self.sheild = True
+        elif powerUpType=="life":
+            self.revive = True
+    def COOP(self,state):
+        if state:
+            self.ammo1.hidden = False
+        elif not state:
+            self.ammo1.hidden = True
 
 
 

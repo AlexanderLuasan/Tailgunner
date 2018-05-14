@@ -92,7 +92,10 @@ def drawall():
     attacks.draw(screen)
     enemeyattacks.draw(screen)
     
-    huds.draw(screen)
+    for i in huds:
+        if i.hidden == False:
+            screen.blit(i.image, i.rect)
+    
     FX.draw(screen)
     for i in players:
         if i.iframesCount>0:
@@ -133,13 +136,20 @@ def moveWorld():
         i.rect.y+=constants.backgroundScroll
         i.check()
    '''  
-
+'''
+types:
+sheild
+life
+'''
 class powerUp(pygame.sprite.Sprite):
-    def __init__(self,powerUpType,):
+    def __init__(self,powerUpType):
         super().__init__()
         self.powerUp = powerUpType
         #sort by type
-        image="shieldPU.png"
+        if self.powerUp=='sheild':
+            image="shieldPU.png"
+        elif self.powerUp=='life':
+            image="lifePU.png"
         self.image=pygame.image.load("assets/"+image)
         self.rect = self.image.get_rect()
         self.rect.x=-100
