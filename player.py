@@ -180,8 +180,8 @@ class player(pygame.sprite.Sprite):
         
         
         #stat bars
-        self.healthBar = hudBar(20,C.screenSize[1]-100,self.side,1,1,(255,0,0))
-        self.gunBar = hudBar(40,C.screenSize[1]-100,self.side,100,100,(255,255,0))
+        self.healthBar = hudBar(20,C.screenSize[1]-100,self.side,2,2,(255,0,0))
+        self.gunBar = hudBar(40,C.screenSize[1]-100,self.side,100,0,(255,255,0))
         self.ammmoDisplay = counter(self.side)
         self.airBar = hudBar(60,C.screenSize[1]-100,self.side,100,100,(255,0,255))
         self.allbar = [self.airBar,self.gunBar,self.healthBar]
@@ -207,11 +207,11 @@ class player(pygame.sprite.Sprite):
         
         
         #power ups
-        self.CurrentFireMethod = "full" #basic shotgun spread rotation toAdd laser semiauto fullauto  
+        self.CurrentFireMethod = "basic" #basic shotgun split rotate toAdd laser semiauto fullauto  
         self.turretFireMode = "Tfull"
         self.mainBulletCount = 0
         self.turretBulletCount = 0
-        self.powerupCount = 3
+        self.powerupCount = 1
         self.powerupangle = 0
         self.revive = False
         #for rotation
@@ -534,28 +534,61 @@ class player(pygame.sprite.Sprite):
             crash = pygame.sprite.spritecollide(self, enimies, False)
             for i in crash:
                 if pygame.sprite.collide_mask(self,i)!=None:
-                    if self.sheild == False:
-                        temp=i.crash()
+                    temp=i.crash()
+                    if temp == "powerup":
+                        self.PowerUpHandLer(i)
+                    elif self.sheild == False:
                         if temp == "sea":
                             pass
-                        elif temp == "powerup":
-                            self.PowerUpHandLer(i)
                         else:
                             self.healthBar.adjv(-1)
                             self.iframesCount=120
-                            break
+                            break                    
                     else:
                         self.sheild=False
                         self.iframesCount=120
                         break
+    '''
+      basic shotgun split rotation toAdd laser semiauto fullauto  
+    types:
+    sheild
+    life
+    snake
+    split
+    prox
+    auto
+    semi
+    laser
+    '''
     def PowerUpHandLer(self,ObjPowerup):
         powerUpType = ObjPowerup.powerUp
         ObjPowerup.kill()
         self.healthBar.adjv(1)
+        if self.powerupCount<5:
+            self.powerupCount+=1
         if powerUpType=="sheild":
             self.sheild = True
         elif powerUpType=="life":
             self.revive = True
+        elif powerUpType=="split":
+            self.gunBar.adjv(200)
+            self.CurrentFireMethod = "split"
+        elif powerUpType=="snake":
+            self.gunBar.adjv(200)
+            self.CurrentFireMethod = "rotate"
+        elif powerUpType=="prox":
+            self.gunBar.adjv(200)
+            self.CurrentFireMethod = "shotgun"
+        elif powerUpType=="auto":
+            self.gunBar.adjv(200)
+            self.CurrentFireMethod = "full" 
+        elif powerUpType=="semi":
+            self.gunBar.adjv(200)
+            self.CurrentFireMethod = "semi" 
+        elif powerUpType=="laser":
+            self.gunBar.adjv(200)
+            self.CurrentFireMethod = "laser"
+        
     def COOP(self,state):
         if state:
             self.ammo1.hidden = False

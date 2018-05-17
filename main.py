@@ -113,7 +113,7 @@ def singlePlaneLevel(name,lives):
                         hero2.adjustHeading([1,0])                 
                 elif event.key == 113: #q
                     world.enemeys.add(world.enemies.Real_looper(620,-50))
-                    world.enemeys.add(world.powerUp('life'))
+                    world.enemeys.add(world.powerUp('snake'))
                 elif event.key == 101: #e
                     #world.enemeys.add(world.enemies.Test_plane(620,-50))
                     #world.enemeys.add(world.enemies.Test_plane2(700,-50))  

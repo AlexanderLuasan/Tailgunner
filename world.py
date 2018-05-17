@@ -140,6 +140,12 @@ def moveWorld():
 types:
 sheild
 life
+snake
+split
+prox
+auto
+semi
+laser
 '''
 class powerUp(pygame.sprite.Sprite):
     def __init__(self,powerUpType):
@@ -150,6 +156,18 @@ class powerUp(pygame.sprite.Sprite):
             image="shieldPU.png"
         elif self.powerUp=='life':
             image="lifePU.png"
+        elif self.powerUp=='snake':
+            image="snakePU.png"
+        elif self.powerUp=='split':
+            image="splitPU.png"
+        elif self.powerUp=='prox':
+            image="proxPU.png"
+        elif self.powerUp=='auto':
+            image="autoPU.png"
+        elif self.powerUp=='semi':
+            image="semiPU.png" 
+        elif self.powerUp=='laser':
+            image="laserPU.png"        
         self.image=pygame.image.load("assets/"+image)
         self.rect = self.image.get_rect()
         self.rect.x=-100
