@@ -1,7 +1,7 @@
 import pygame
 import constants as C
 import projectile
-
+P_MAXHEALTH=3
 maskingtester = pygame.sprite.GroupSingle()
 COOP = False
 #draws health bar
@@ -180,7 +180,7 @@ class player(pygame.sprite.Sprite):
         
         
         #stat bars
-        self.healthBar = hudBar(20,C.screenSize[1]-100,self.side,2,2,(255,0,0))
+        self.healthBar = hudBar(20,C.screenSize[1]-100,self.side,P_MAXHEALTH,P_MAXHEALTH,(255,0,0))
         self.gunBar = hudBar(40,C.screenSize[1]-100,self.side,100,0,(255,255,0))
         self.ammmoDisplay = counter(self.side)
         self.airBar = hudBar(60,C.screenSize[1]-100,self.side,100,100,(255,0,255))
@@ -192,7 +192,9 @@ class player(pygame.sprite.Sprite):
             self.ammo1 = hudBar(60,C.screenSize[1]-100,"right",100,100,(255,255,0),hidden=True)#left
         self.allbar.append(self.ammo1)
             
-
+        
+        
+        
         #extra frame conter
         self.other = True
         #firing variables
@@ -304,7 +306,7 @@ class player(pygame.sprite.Sprite):
                 end.append(shots)
             self.gunBar.adjv(-1)
             #delay after shot
-            if self.CurrentFireMethod == "semi" and self.mainBulletCount<5:
+            if (self.CurrentFireMethod == "semi" or self.CurrentFireMethod == "snake" ) and self.mainBulletCount<5:
                 self.firing=True
                 self.mainBulletCount+=1
                 self.mainFireCount=2
@@ -331,7 +333,7 @@ class player(pygame.sprite.Sprite):
         if method == "basicS" or method == "Tsemi" or method == "Tfull":
             s=projectile.scaterShots(self.rect.center[0],self.rect.center[1],mainangle)
             return s
-        if method == "rotate":
+        if method == "snake":
             s=projectile.scaterShots(self.rect.center[0],self.rect.center[1],mainangle+self.powerupangle)
             self.powerupangle+= self.powerupdirection*ROTATIONANGLE
             if abs(self.powerupangle)>abs(self.powerupCount*ROTATIONANGLE):
@@ -575,7 +577,7 @@ class player(pygame.sprite.Sprite):
             self.CurrentFireMethod = "split"
         elif powerUpType=="snake":
             self.gunBar.adjv(200)
-            self.CurrentFireMethod = "rotate"
+            self.CurrentFireMethod = "snake"
         elif powerUpType=="prox":
             self.gunBar.adjv(200)
             self.CurrentFireMethod = "shotgun"

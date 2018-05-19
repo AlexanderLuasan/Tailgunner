@@ -102,6 +102,18 @@ def drawall():
             screen=fx.flicker(i,screen)
         if i.sheild==True:
             fx.sheild(i.rect,screen)
+        if i.healthBar.getM()-i.healthBar.getV() > 0:
+            blob = fx.smokeTrail(i.healthBar.getM()-i.healthBar.getV(),i.rect.center[0],i.rect.bottom)
+            if blob!=None:
+                FX.add(blob)
+    for i in enemeys:
+        try:
+            if i.flicker == True:
+                screen=fx.flicker(i,screen)
+        except:
+            pass
+    
+            
         
     pygame.display.flip()
 
@@ -124,6 +136,7 @@ def moveWorld():
         i.rect.y+=constants.backgroundScroll
     for i in enemeyattacks:
         pass
+
         
     '''
     new=True
@@ -167,7 +180,8 @@ class powerUp(pygame.sprite.Sprite):
         elif self.powerUp=='semi':
             image="semiPU.png" 
         elif self.powerUp=='laser':
-            image="laserPU.png"        
+            image="laserPU.png"
+        self.flicker = True
         self.image=pygame.image.load("assets/"+image)
         self.rect = self.image.get_rect()
         self.rect.x=-100
