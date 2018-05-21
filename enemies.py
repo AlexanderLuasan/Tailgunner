@@ -250,10 +250,7 @@ class Real_looper(pygame.sprite.Sprite):
         #am I offscreen?
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
             self.kill()
-
-
-
-
+            
         if self.rect.y > C.screenSize[1]-200 or not isinstance(self.has_looped,bool):
             self.loop_de_loop()
         else:

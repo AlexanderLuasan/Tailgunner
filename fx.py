@@ -5,6 +5,30 @@ pygame.init()
 
 
     
+
+class smokeCloud(pygame.sprite.Sprite):
+    def gs(self,x,y,dx,dy):
+        
+        gsimage = pygame.Surface([dx, dy])
+        gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
+        return gsimage    
+    def __init__(self,x,y):#give center
+        super().__init__()
+        angle = random.randint(0,360)
+        self.image = pygame.image.load("assets/smoke"+".png")
+        self.image = pygame.transform.rotate(self.image, angle)
+        self.image=pygame.transform.scale(self.image,(30,30))
+        self.rect = self.image.get_rect()
+        self.rect.center = (x,y)
+    def update(self):
+        self.rect.y+=2*constants.backgroundScroll
+        if abs(constants.screenSize[0]/2-self.rect.x)>constants.screenSize[0]/2 and abs(constants.screenSize[1]/2-self.rect.y)>constants.screenSize[1]/2:
+            self.kill()
+def smokeTrail(smokelevel,x,y):
+    if random.randint(0,smokelevel)>0:
+        return(smokeCloud(x,y))
+    else:
+        return(None)
     
 def outlineObject(thing):
     #return the outline in a image or nothing

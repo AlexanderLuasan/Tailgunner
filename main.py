@@ -21,7 +21,7 @@ chose level
 
 fullexit=False
 
-def singlePlaneLevel(name,lives):
+def singlePlaneLevel(name,lives,twoPlayer = False):
     count=0
     other = True
     done=False
@@ -31,17 +31,20 @@ def singlePlaneLevel(name,lives):
     
     deadplayer = ["","","",""]
     hero = world.player.player(100,C.screenSize[1],"FinalSprite","left","playerOne")
-    hero2 = world.player.player(100,C.screenSize[1],"FinalSprite","right","playerTwo")
     world.players.add(hero)
-    world.players.add(hero2)
+    hero2 = world.player.player(100,C.screenSize[1],"FinalSprite","right","playerTwo")
+    if twoPlayer == True:
+        world.players.add(hero2)
+    
     playerOneDead = False
     playerTwoDead = False
     
     
     for i in hero.getHud():
         world.huds.add(i)
-    for i in hero2.getHud():
-        world.huds.add(i)
+    if twoPlayer == True:
+        for i in hero2.getHud():
+            world.huds.add(i)
     
     while not done:
         for event in pygame.event.get():
@@ -187,20 +190,28 @@ def singlePlaneLevel(name,lives):
         if len(turretComb)>0:
             if 119 in turretComb and 97 in turretComb:
                 hero.setTurretHeading([-1,1])
+                her2.setTurretHeading([-1,1])
             elif 97 in turretComb  and 115 in turretComb:
                 hero.setTurretHeading([-1,-1])
+                hero2.setTurretHeading([-1,-1])
             elif 115 in turretComb and 100 in turretComb:
                 hero.setTurretHeading([1,-1])
+                hero2.setTurretHeading([1,-1])
             elif 100 in turretComb and 119 in turretComb:
                 hero.setTurretHeading([1,1])
+                hero2.setTurretHeading([1,1])
             elif 119 in turretComb:
                 hero.setTurretHeading([0,1])
+                hero2.setTurretHeading([0,1])
             elif 97 in turretComb:
                 hero.setTurretHeading([-1,0])
+                hero2.setTurretHeading([-1,0])
             elif 115 in turretComb:
                 hero.setTurretHeading([0,-1])
+                hero2.setTurretHeading([0,-1])
             elif 100 in turretComb:
                 hero.setTurretHeading([1,0])
+                hero2.setTurretHeading([1,0])
             else:
                 hero.setTurretHeading([0,0])
         tim +=1
