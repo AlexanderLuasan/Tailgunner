@@ -4,6 +4,7 @@ import player
 import enemies
 import projectile
 import fx
+import bosses
 pygame.init()
 #list of things
 players = pygame.sprite.Group()
@@ -109,7 +110,14 @@ def drawall():
     for i in enemeys:
         try:
             if i.flicker == True:
-                screen=fx.flicker(i,screen)
+                screen=fx.flicker(i,screen,line=3)
+        except:
+            pass
+        try:
+            if i.maxHealth-i.health>0:
+                blob = fx.smokeTrail(i.maxHealth-i.health,i.rect.center[0],i.rect.center[1])
+                if blob!=None:
+                    FX.add(blob)
         except:
             pass
     
@@ -132,10 +140,8 @@ def moveWorld():
         i.move() 
     for i in attacks:
         pass
-    for i in enemeys:
-        i.rect.y+=constants.backgroundScroll
     for i in enemeyattacks:
-        pass
+        pass  
 
         
     '''

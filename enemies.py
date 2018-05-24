@@ -231,7 +231,7 @@ class Real_looper(pygame.sprite.Sprite):
         self.heading[0] += self.acceleration_vector[0]
         self.heading[1] += self.acceleration_vector[1]
         #print(self.heading[0])
-
+        self.rect.y+=C.backgroundScroll
 
         if self.heading[0] > 2:
             self.heading[0] = 2
@@ -260,10 +260,11 @@ class Real_looper(pygame.sprite.Sprite):
 
         #should I shoot?
         target = closest(self,playerlist)
-        self.fire +=1
-        if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
-            self.fire = 0
-            return("ea",projectile.zeroShot(self.rect.center[0],self.rect.bottom,C.math.pi/2))
+        if target != None:
+            self.fire +=1
+            if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
+                self.fire = 0
+                return("ea",projectile.zeroShot(self.rect.center[0],self.rect.bottom,C.math.pi/2))
 
         #print(self.heading[1])
         #print(self.rect.y)
@@ -434,11 +435,11 @@ SPIN_COUNT = 3
 
 class SpinPlane(pygame.sprite.Sprite):
     def __init__(self,x,y,direction=1,wing=5,side = "both"):
-        super().__init__()#50,38
+        super().__init__()#60,48
         #make animation and angle -pi/2 is up
         #set original position off screen circle to the right with tails
-        self.spritesheet = pygame.image.load(C.getImage("rotatorplane")+".png")
-        origImage = [self.gs(0,38*2,50,38),self.gs(50,38*2,50,38)]
+        self.spritesheet = pygame.image.load(C.getImage("assets/Hayate"+".png"))
+        origImage = [self.gs(0,48*2,60,48),self.gs(60,48*2,60,48)]
         #-90 -> 270 possible angles 8 possible angles
         self.animationAngles = []
         self.animations = []
@@ -504,7 +505,6 @@ class SpinPlane(pygame.sprite.Sprite):
     def update(self,playerlist,attacklist):
         self.rect.x+=self.heading[0]
         self.rect.y+=self.heading[1]
-        self.rect.y-=C.backgroundScroll
 
         self.tim +=1
         if self.propCount>1:

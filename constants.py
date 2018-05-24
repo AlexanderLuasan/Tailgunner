@@ -71,7 +71,7 @@ enemiesFPS = 60
 projectleFPS = 60
 
 screenSize = (1280,800)
-backgroundScroll =2
+backgroundScroll =4
 
 
 def getImage(name):

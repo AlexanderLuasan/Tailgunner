@@ -18,7 +18,7 @@ chose level
 
 
 
-
+world.fx.smokeINIT()
 fullexit=False
 
 def singlePlaneLevel(name,lives,twoPlayer = False):
@@ -37,8 +37,10 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
         world.players.add(hero2)
     
     playerOneDead = False
-    playerTwoDead = False
-    
+    if twoPlayer==True:
+        playerTwoDead = False
+    else:
+        playerTwoDead = True
     
     for i in hero.getHud():
         world.huds.add(i)
@@ -118,8 +120,8 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                     world.enemeys.add(world.enemies.Real_looper(620,-50))
                     world.enemeys.add(world.powerUp('snake'))
                 elif event.key == 101: #e
-                    #world.enemeys.add(world.enemies.Test_plane(620,-50))
-                    #world.enemeys.add(world.enemies.Test_plane2(700,-50))  
+                    world.enemeys.add(world.bosses.bigPlane(500,30))
+
                     pass          
                 else:
                     print(event.key)
@@ -287,7 +289,8 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
             i.update()
         for i in world.FX:
             i.update()
-
+        if len(world.FX) == 0 and playerOneDead == True and playerTwoDead == True:
+            return('gameover')
         if other==True:
             world.drawall()
             other=False

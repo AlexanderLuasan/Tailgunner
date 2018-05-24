@@ -4,8 +4,15 @@ import constants
 pygame.init()
 
 
+SMOKEIMAGES=[]   
+def smokeINIT():
     
-
+    global SMOKEIMAGES
+    for i in range(360):
+        image = pygame.image.load("assets/smoke"+".png")
+        image = pygame.transform.rotate(image, i)
+        image = pygame.transform.scale(image,(30,30))
+        SMOKEIMAGES.append(image)
 class smokeCloud(pygame.sprite.Sprite):
     def gs(self,x,y,dx,dy):
         
@@ -13,11 +20,9 @@ class smokeCloud(pygame.sprite.Sprite):
         gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
         return gsimage    
     def __init__(self,x,y):#give center
-        super().__init__()
-        angle = random.randint(0,360)
-        self.image = pygame.image.load("assets/smoke"+".png")
-        self.image = pygame.transform.rotate(self.image, angle)
-        self.image=pygame.transform.scale(self.image,(30,30))
+        super().__init__() 
+        global SMOKEIMAGES
+        self.image = SMOKEIMAGES[random.randint(0,359)]
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
     def update(self):
@@ -25,24 +30,25 @@ class smokeCloud(pygame.sprite.Sprite):
         if abs(constants.screenSize[0]/2-self.rect.x)>constants.screenSize[0]/2 and abs(constants.screenSize[1]/2-self.rect.y)>constants.screenSize[1]/2:
             self.kill()
 def smokeTrail(smokelevel,x,y):
-    if random.randint(0,smokelevel)>0:
+    if random.randint(-2,smokelevel)>0:
         return(smokeCloud(x,y))
     else:
         return(None)
     
-def outlineObject(thing):
+def outlineObject(thing,color,linesize):
     #return the outline in a image or nothing
     end = pygame.Surface((thing.rect.width,thing.rect.height))
     mask = pygame.mask.from_surface(thing.image)
     points=mask.outline()
     end.set_colorkey((0,0,0))
-    pygame.draw.polygon(end, (255,255,255), points, 1)
+    pygame.draw.polygon(end, color, points, linesize)
     
     return end
-def flicker(thing,screen):
+def flicker(thing,screen,color=(255,255,255),line = 1):
     if random.randint(0,1):
-        screen.blit(outlineObject(thing),thing.rect)
+        screen.blit(outlineObject(thing,color,line),thing.rect)
     return screen
+
 def sheild(rect,screen):
     if random.randint(0,1):
         pygame.draw.ellipse(screen,(255,200,200),rect,3)

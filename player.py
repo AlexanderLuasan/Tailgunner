@@ -273,7 +273,6 @@ class player(pygame.sprite.Sprite):
                 self.turretfire=True
                 self.turretBulletCount+=1
                 self.turretFireCount=2
-                print("w")
             elif self.turretFireMode == "Tfull":
                 self.turretfire=True
                 self.turretFireCount =2
@@ -539,6 +538,8 @@ class player(pygame.sprite.Sprite):
                     temp=i.crash()
                     if temp == "powerup":
                         self.PowerUpHandLer(i)
+                    elif temp == "nocolide":
+                        pass
                     elif self.sheild == False:
                         if temp == "sea":
                             pass
