@@ -79,8 +79,8 @@ def spawn():
     e=enemies.strafer([100,constants.screenSize[0]-100],-10,constants.math.pi/2)
     enemeys.add(e)
 
-def explode(obj):
-    bits = fx.makeExplosion(obj)
+def explode(obj,cheap = False):
+    bits = fx.makeExplosion(obj,cheap)
     for i in bits:
         FX.add(i)
 def drawall():
@@ -138,10 +138,6 @@ def newBackground():
 def moveWorld():
     for i in backgrounds:
         i.move() 
-    for i in attacks:
-        pass
-    for i in enemeyattacks:
-        pass  
 
         
     '''
@@ -202,12 +198,12 @@ class powerUp(pygame.sprite.Sprite):
     def update(self,playerlist,attacklist):
 
         if len(self.powerPlanes)>1:
-            self.rect.y-=constants.backgroundScroll
+            pass
         elif len(self.powerPlanes)==1:
             for i in self.powerPlanes:
                 self.rect.center = i.rect.center
         else:
-            pass
+            self.rect.y+=constants.backgroundScroll
         if abs(self.rect.x-constants.screenSize[0]/2)>1000 or abs(self.rect.y-constants.screenSize[1]/2)>1000:
             self.kill()
     def crash(self):

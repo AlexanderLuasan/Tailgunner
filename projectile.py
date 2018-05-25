@@ -30,11 +30,11 @@ class shot(pygame.sprite.Sprite):
         self.image.fill((0,0,0))
         pygame.draw.ellipse(self.image,(255,0,0),(0,0,10,10),0)
         self.image.set_colorkey((0,0,0))
-        self.speed=4
+        self.speed=1
         self.rect=self.image.get_rect()
         self.rect.center=(x,y)
         self.angle=angle
-        self.direction = constants.angleToVector(self.angle,1)
+        self.direction = constants.angleToVector(self.angle,6)
     def hit(self):
         self.kill()
         return 1

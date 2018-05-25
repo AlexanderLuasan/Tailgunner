@@ -237,7 +237,11 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                             world.enemeys.add(action[i])
                 elif action[0] == "explosion":
                     print("explosion1")
-                    world.explode(i)
+                    world.explode(i,cheap=True)
+                    try:
+                        i.die()
+                    except:
+                        i.kill()
 
 
 

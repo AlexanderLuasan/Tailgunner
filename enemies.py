@@ -231,7 +231,7 @@ class Real_looper(pygame.sprite.Sprite):
         self.heading[0] += self.acceleration_vector[0]
         self.heading[1] += self.acceleration_vector[1]
         #print(self.heading[0])
-        self.rect.y+=C.backgroundScroll
+        self.rect.y+=C.backgroundScroll/2
 
         if self.heading[0] > 2:
             self.heading[0] = 2
@@ -354,6 +354,14 @@ class strafer(pygame.sprite.Sprite):
 
     def update(self,playerlist,attacklist):
         #print("hello!" + str(self.tim))
+        hits=pygame.sprite.spritecollide(self, attacklist, False)
+        for i in hits:
+            temp=i.hit()
+            self.health-=temp
+        if self.health<=0:
+            self.kill()
+        if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
+            self.kill()        
         self.update_image()
         if self.rect.y<100:
             self.rect.y+=1
@@ -407,14 +415,8 @@ class strafer(pygame.sprite.Sprite):
         if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
             self.fire = 0
             return("ea",projectile.zeroShot(self.rect.center[0],self.rect.bottom,C.math.pi/2))
-        hits=pygame.sprite.spritecollide(self, attacklist, False)
-        for i in hits:
-            temp=i.hit()
-            self.health-=temp
-        if self.health<=0:
-            self.kill()
-        if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
-            self.kill()
+        
+        
 
 
 

@@ -32,23 +32,25 @@ class turret(pygame.sprite.Sprite):
         self.relative = [int(x),int(y)]
         self.turretAngle=0
         self.image = self.origimage 
-        self.mode = "basic"
+        self.mode = "none"
         self.firecount = 5
     def setloc(self,x,y):
         self.rect.x=x+self.relative[0]-self.rect.width/2
         self.rect.y=y+self.relative[1]-self.rect.height/2 
+    def setfircount(self,n):
+        self.firecount=n
+    def setfiremode(self,mode):
+        self.mode = mode
     def update(self,playerlist,attacklist):
         
         
         target = closest(self,playerlist)
         if target == None:
             return None
-        targetangle = C.vectorToAngle([self.rect.center[0]-target.rect.center[0],self.rect.center[1]-target.rect.center[1]])
-        if abs(self.turretAngle-targetangle)>2*3:
-            self.turretAngle=targetangle
-        self.turretAngle=(self.turretAngle+targetangle)/2        
+        
+        self.turretAngle = C.vectorToAngle([self.rect.center[0]-target.rect.center[0],self.rect.center[1]-target.rect.center[1]])
         self.firecount+=1
-        if self.mode=="basic"and self.firecount>30:
+        if self.mode=="basic"and self.firecount>random.randint(30,50):
             
             anglelinepos=C.angleToVector(self.turretAngle,self.rect.width/2)         
             self.firecount=0
@@ -72,18 +74,26 @@ class WeakPoint(pygame.sprite.Sprite):
         self.relative = [int(x),int(y)]
         self.setloc(0,0)
         self.flicker = True
-        self.health=10
-        self.maxHealth = 10
-        
+        self.health=5
+        self.maxHealth = 5
+    def isdead(self):
+        if self.health<1:
+            return True
+        else:
+            return False
     def setloc(self,x,y):
         self.rect.x=x+self.relative[0]
         self.rect.y=y+self.relative[1]
     def update(self,playerlist,attacklist):
         self.rect.y-=C.backgroundScroll
-        hits=pygame.sprite.spritecollide(self, attacklist, False)
-        for i in hits:
-            temp=i.hit()
-            self.health-=temp
+        if self.health>0:
+            hits=pygame.sprite.spritecollide(self, attacklist, False)
+            for i in hits:
+                temp=i.hit()
+                self.health-=temp
+                if self.health<1:
+                    self.flicker = False
+        
         
     def crash(self):
         return "nocolide"
@@ -109,10 +119,16 @@ class bigPlane(pygame.sprite.Sprite):
         
         self.leftWingSpot = self.makeWeakPoints(6*16,11*16,4*17,4*17,50)#6,11
         self.rightWingSpot = self.makeWeakPoints(self.rect.width-6*16-4*17,11*16,4*17,4*17,50)#6,11
-        self.weakspots = [self.leftWingSpot,self.rightWingSpot]
+        self.leftcenter = self.makeWeakPoints(12*16,11*16,4*17,4*17,50,adj=True)#6,11
+        self.rightcenter =self.makeWeakPoints(self.rect.width-12*16-4*17,11*16,4*17,4*17,50,adj=True)#6,11
+        self.leftcenter2 = self.makeWeakPoints(18*16,11*16,4*17,4*17,50,adj=True)#6,11
+        self.rightcenter2 =self.makeWeakPoints(self.rect.width-18*16-4*17,11*16,4*17,4*17,50,adj=True)#6,11        
+        self.weakspots = [self.leftWingSpot,self.rightWingSpot,self.leftcenter,self.rightcenter,self.leftcenter2,self.rightcenter2]
         
         self.turret = turret(self.rect.width/2,self.rect.height/2,[32,32])
-        self.turrets = [self.turret]
+        self.turret1 = turret(self.rect.width/2-40,self.rect.height/2+40,[32,32])
+        self.turret2 = turret(self.rect.width/2+40,self.rect.height/2+40,[32,32])
+        self.turrets = [self.turret,self.turret1,self.turret2]
         #
         if 1==random.randint(0,1):
             self.headingPrime=[1,0] #where I want to go
@@ -130,15 +146,35 @@ class bigPlane(pygame.sprite.Sprite):
             i.setloc(self.rect.x,self.rect.y)
         for i in self.turrets:
             i.setloc(self.rect.x,self.rect.y)
+        dead=True
+        for i in self.weakspots:
+            if i.isdead() == False:
+                dead=False
+                break
+        
+        if dead==True:
+            return(["explosion"])
         if self.first==True:
             self.first=False
-            return ("ep",self.leftWingSpot,self.rightWingSpot,self.turret)        
+            return ("ep",self.leftWingSpot,self.rightWingSpot,self.turret,self.turret1,self.turret2,self.leftcenter,self.rightcenter,self.leftcenter2,self.rightcenter2)
+        
     def crash(self):
         return "nocolide"
-    def makeWeakPoints(self,x,y,dx,dy,health):#pygame.transform.chop()
-        croped = pygame.Surface((dx,dy))
-        croped.blit(self.image,(0,0),(x,y,dx,dy))
-        return WeakPoint(croped,x,y)
+    def die(self):
+        for i in self.weakspots:
+            i.kill()
+        for i in self.turrets:
+            i.kill()
+        self.kill()
+    def makeWeakPoints(self,x,y,dx,dy,health,adj=None):#pygame.transform.chop()
+        if adj==None:
+            croped = pygame.Surface((dx,dy))
+            croped.blit(self.image,(0,0),(x,y,dx,dy))
+            return WeakPoint(croped,x,y)
+        elif adj==True:
+            croped = pygame.Surface((dx,dy))
+            croped.blit(self.image,(0,0),(6*16,11*16,dx,dy))
+            return WeakPoint(croped,x,y)            
         
     def accel(self):
         if self.rect.left<-100+random.randint(-50,50):

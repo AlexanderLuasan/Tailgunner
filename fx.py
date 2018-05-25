@@ -79,7 +79,7 @@ class rubble(pygame.sprite.Sprite):
         if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
             self.kill() 
 
-def makeExplosion(obj):
+def makeExplosion(obj,cheap):
     end = []
     
     colors = []
@@ -88,18 +88,21 @@ def makeExplosion(obj):
         for y in range(obj.image.get_height()):
             tower.append(obj.image.get_at((x,y)))
         colors.append(tower)
-    brickSize = [5,5]
+    if cheap == True: 
+        brickSize = [50,50]
+    else:
+        brickSize = [5,5]
     y=0
     while y <len(colors[0]):
         x=0
         while x < len(colors):#main index
             if colors[x][y][0:3] != constants.ColorKey:
                 end.append(rubble(obj.rect.x+x,obj.rect.y+y, size = brickSize, color = colors[x][y][0:3]))
-                x+=2
+                x+=brickSize[0]
             else:
                 x+=1
             
-        y+=2
+        y+=brickSize[1]
             
     return end
     #returns a list of ruble objs to show an explosion
