@@ -74,11 +74,34 @@ class backgroundTile(pygame.sprite.Sprite):
 
         
         
-
+#choes a random out of list
 def spawn():
-    e=enemies.strafer([100,constants.screenSize[0]-100],-10,constants.math.pi/2)
-    enemeys.add(e)
+    choice=constants.random.randint(0,100)
+    print(choice)
+    if choice>0:
+        print(1)
+        power=constants.random.choice(["sheild",'life','snake','split','prox','auto','semi','laser'])
+        e=powerUp("sheild")#list of powerups
 
+    elif choice>50:
+        print(2)
+        e=enemies.Real_looper(constants.random.randint(10,constants.screenSize[0]-10),0)#change x to one side to other side
+
+    elif choice>25:
+        print(3)
+        x=constants.random.choice([-100,constants.screenSize[0]+100])
+        y=constants.random.randint(100,constants.screenSize[1]-200)
+        wings = constants.random.randint(1,10)
+        sidet=constants.random.choice(["both","left","right"])
+        dire = constants.random.choice([-1,1])
+        e=enemies.SpinPlane(x,y,direction=dire,wing=wings,side=sidet) #change both x and y and both also change direction
+
+    else:
+        print(4)
+        x=constants.random.randint(100,constants.screenSize[0]-100)
+        e=enemies.strafer(x,-10,direction=1,wing=5,side = "both")#change both x and y
+    enemeys.add(e)
+    
 def explode(obj,cheap = False):
     bits = fx.makeExplosion(obj,cheap)
     for i in bits:
@@ -98,6 +121,15 @@ def drawall():
             screen.blit(i.image, i.rect)
     
     FX.draw(screen)
+    #quickclear
+    if len(FX)>30:
+        for i in FX:
+            try:
+                i.count-=5
+            except:
+                pass
+    
+    
     for i in players:
         if i.iframesCount>0:
             screen=fx.flicker(i,screen)
@@ -162,6 +194,7 @@ auto
 semi
 laser
 '''
+
 class powerUp(pygame.sprite.Sprite):
     def __init__(self,powerUpType):
         super().__init__()
@@ -188,7 +221,9 @@ class powerUp(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x=-100
         self.rect.y=-100
-        s=enemies.SpinPlane(-50,200)
+        sidet=constants.random.choice(["both","left","right"])
+        dire = constants.random.choice([-1,1])        
+        s=enemies.SpinPlane(constants.random.choice([-100,constants.screenSize[0]+100]),300,direction=dire,side=sidet)
         enemeys.add(s)
         self.powerPlanes = pygame.sprite.Group()
         for i in s.collectKin():

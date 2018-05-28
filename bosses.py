@@ -153,7 +153,7 @@ class bigPlane(pygame.sprite.Sprite):
                 break
         
         if dead==True:
-            return(["explosion"])
+            return(["explosion","cheap"])
         if self.first==True:
             self.first=False
             return ("ep",self.leftWingSpot,self.rightWingSpot,self.turret,self.turret1,self.turret2,self.leftcenter,self.rightcenter,self.leftcenter2,self.rightcenter2)

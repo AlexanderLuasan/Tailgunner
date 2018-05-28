@@ -50,10 +50,12 @@ class Real_looper(pygame.sprite.Sprite):
         return gsimage
 
     def crash(self):
-        self.kill()
+        self.death = True
+
 
     def __init__(self,x,y):
         super().__init__()
+        self.death = False
         self.has_looped = False
         self.health = 3
         image_path_name = C.os.getcwd() + "/assets/Hayabusa.png"
@@ -245,7 +247,7 @@ class Real_looper(pygame.sprite.Sprite):
             temp=i.hit()
             self.health-=temp
         if self.health<=0:
-            self.kill()
+            self.death=True
 
         #am I offscreen?
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
@@ -259,6 +261,8 @@ class Real_looper(pygame.sprite.Sprite):
         self.tim += 1
 
         #should I shoot?
+        if self.death == True:
+            return(['explosion'])
         target = closest(self,playerlist)
         if target != None:
             self.fire +=1
@@ -280,9 +284,10 @@ class strafer(pygame.sprite.Sprite):
         gsimage.blit(self.spritesheet,(0,0),(x,y,dx,dy))
         return gsimage
     def crash(self):
-        self.kill()
+        self.death = True
     def __init__(self,x,y,direction,wing=5,side = "both"):
         super().__init__() #24,24
+        self.death = False
         spritesheet_path = C.os.getcwd() + "/assets/Updated0.png"
         self.spritesheet = pygame.transform.flip(pygame.image.load(spritesheet_path),False,True)
         self.angles = [0,C.math.pi/4,C.math.pi/2,3*C.math.pi/4,C.math.pi]
@@ -359,9 +364,11 @@ class strafer(pygame.sprite.Sprite):
             temp=i.hit()
             self.health-=temp
         if self.health<=0:
-            self.kill()
+            self.death = True
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
-            self.kill()        
+            self.kill()
+        if self.death == True:
+            return(['explosion'])
         self.update_image()
         if self.rect.y<100:
             self.rect.y+=1
@@ -412,6 +419,7 @@ class strafer(pygame.sprite.Sprite):
             self.heading=C.angleToVector(self.angles[self.anglePos],2)
             self.tim = 0
         self.fire +=1
+        
         if abs((self.rect.x+self.rect.width/2)-(target.rect.x+target.rect.width/2))<5 and self.fire>C.PlayerFPS/C.enemiesFPS*30:
             self.fire = 0
             return("ea",projectile.zeroShot(self.rect.center[0],self.rect.bottom,C.math.pi/2))
@@ -459,7 +467,7 @@ class SpinPlane(pygame.sprite.Sprite):
         self.rect.x=x-self.rect.width/2
         self.rect.y=y-self.rect.height/2
         self.heading = C.angleToVector(self.animationAngles[self.position],SPIN_SPEED)
-
+        self.death = False
         self.spinDirection = direction
         self.tim = 0 #miain counter
         self.mode = "stright" #stright or circle or oval
@@ -491,8 +499,10 @@ class SpinPlane(pygame.sprite.Sprite):
             self.delayCount*=-1
             if side=="both":
                 self.kin = SpinPlane(self.rect.x+self.rect.width/2,self.rect.y+self.rect.height/2,direction*-1,wing-1,"both")
-            else:
+            elif side=="left":
                 self.kin = SpinPlane(self.rect.x+self.rect.width/2,self.rect.y+self.rect.height/2,direction,wing-1,"left")
+            elif side=="right":
+                self.kin = SpinPlane(self.rect.x+self.rect.width/2,self.rect.y+self.rect.height/2,direction,wing-1,"right")            
 
     def collectKin(self):
         if self.kin==None:
@@ -547,13 +557,16 @@ class SpinPlane(pygame.sprite.Sprite):
 
 
         #hits
+        if self.death==True:
+            return(['explosion'])
+
         hits=pygame.sprite.spritecollide(self, attacklist, False)
         for i in hits:
             temp=i.hit()
             self.health-=temp
         if self.health<=0:
             self.dead = True
-            self.kill()
+            self.death=True
         if abs(self.rect.x-C.screenSize[0]/2)>1000 or abs(self.rect.y-C.screenSize[1]/2)>1000:
             self.dead = True
             self.kill()
@@ -569,7 +582,7 @@ class SpinPlane(pygame.sprite.Sprite):
         return gsimage
     def crash(self):
         self.dead = True
-        self.kill()
+        self.death=True
     def setSpin(self,position):#sets image and angle
         self.position=position
         self.spin(0)

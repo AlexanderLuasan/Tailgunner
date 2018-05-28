@@ -117,8 +117,10 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                     elif playerTwoDead == False:
                         hero2.adjustHeading([1,0])                 
                 elif event.key == 113: #q
-                    world.enemeys.add(world.enemies.Real_looper(620,-50))
-                    world.enemeys.add(world.powerUp('snake'))
+                    world.spawn()
+                    
+                    #world.enemeys.add(world.enemies.Real_looper(620,-50))
+                    #world.enemeys.add(world.powerUp('snake'))
                 elif event.key == 101: #e
                     world.enemeys.add(world.bosses.bigPlane(500,30))
 
@@ -222,10 +224,6 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
         if tim%10==0:
             turretComb = []
         #peeter
-        count +=1
-        if count>60*10:
-            world.spawn()
-            count=0
         for i in world.enemeys:
             action=i.update(world.players,world.attacks)
             if action !=None:
@@ -236,8 +234,10 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                         if i != 0:
                             world.enemeys.add(action[i])
                 elif action[0] == "explosion":
-                    print("explosion1")
-                    world.explode(i,cheap=True)
+                    try:
+                        world.explode(i,action[1]=="cheap")
+                    except:
+                        world.explode(i)
                     try:
                         i.die()
                     except:
@@ -305,6 +305,6 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
 
 
 #orginization
-singlePlaneLevel("temp",3)
+print(singlePlaneLevel("temp",3))
 print("done")
 pygame.quit()
