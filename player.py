@@ -326,7 +326,7 @@ class player(pygame.sprite.Sprite):
         return end
     def makeSpecialShots(self,method,mainangle):
         #produces shotting patterns
-        if method == "basic" or method == "semi" or method == "full":
+        if method == "basic" or method == "semi" or method == "full" or "laser":
             s=projectile.playershot(self.rect.center[0],self.rect.center[1],mainangle)
             return s
         if method == "basicS" or method == "Tsemi" or method == "Tfull":

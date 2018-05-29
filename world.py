@@ -73,34 +73,44 @@ class backgroundTile(pygame.sprite.Sprite):
             self.tim=0
 
         
-        
+
 #choes a random out of list
-def spawn():
-    choice=constants.random.randint(0,100)
-    print(choice)
-    if choice>0:
-        print(1)
-        power=constants.random.choice(["sheild",'life','snake','split','prox','auto','semi','laser'])
-        e=powerUp("sheild")#list of powerups
-
-    elif choice>50:
-        print(2)
-        e=enemies.Real_looper(constants.random.randint(10,constants.screenSize[0]-10),0)#change x to one side to other side
-
-    elif choice>25:
-        print(3)
-        x=constants.random.choice([-100,constants.screenSize[0]+100])
-        y=constants.random.randint(100,constants.screenSize[1]-200)
-        wings = constants.random.randint(1,10)
-        sidet=constants.random.choice(["both","left","right"])
-        dire = constants.random.choice([-1,1])
-        e=enemies.SpinPlane(x,y,direction=dire,wing=wings,side=sidet) #change both x and y and both also change direction
-
+def spawn(difficulty):
+    doublechance = constants.random.randint(0,10)
+    if doublechance>difficulty:
+        count = 1
     else:
-        print(4)
-        x=constants.random.randint(100,constants.screenSize[0]-100)
-        e=enemies.strafer(x,-10,direction=1,wing=5,side = "both")#change both x and y
-    enemeys.add(e)
+        count=2
+    for i in range(2):
+        choice=constants.random.randint(0,100)
+        print(choice)
+        if choice>75:
+            print(1)
+            power=constants.random.choice(["sheild",'life','snake','split','prox','auto','semi','laser'])
+            e=powerUp(power)#list of powerups
+    
+        elif choice>50:
+            print(2)
+            e=enemies.Real_looper(constants.random.randint(10,constants.screenSize[0]-10),-20)#change x to one side to other side
+    
+        elif choice>25:
+            print(3)
+            x=constants.random.choice([-100,constants.screenSize[0]+100])
+            y=constants.random.randint(100,constants.screenSize[1]-200)
+            wings = constants.random.randint(1,10)
+            sidet=constants.random.choice(["both","left","right"])
+            dire = constants.random.choice([-1,1])
+            e=enemies.SpinPlane(x,y,direction=dire,wing=wings,side=sidet) #change both x and y and both also change direction
+    
+        else:
+            print(4)
+            x=constants.random.randint(100,constants.screenSize[0]-100)
+            sidet=constants.random.choice(["both","left","right"])
+            wings = constants.random.randint(1,2)
+            if sidet=="both":
+                wings=(wings*2)+1
+            e=enemies.strafer(x,-10,direction=1,wing=5,side = sidet)#change both x and y
+        enemeys.add(e)
     
 def explode(obj,cheap = False):
     bits = fx.makeExplosion(obj,cheap)
@@ -151,11 +161,9 @@ def drawall():
                 if blob!=None:
                     FX.add(blob)
         except:
-            pass
-    
-            
-        
+            pass    
     pygame.display.flip()
+    
 
 
          
@@ -170,8 +178,34 @@ def newBackground():
 def moveWorld():
     for i in backgrounds:
         i.move() 
+class arrow(pygame.sprite.Sprite):
+    def __init__(self,size,time):
+        super().__init__()
+        MyFont = pygame.font.Font(pygame.font.get_default_font(),30)
+        self.image = MyFont.render(">",True,(0,0,0))
+        self.rect = self.image.get_rect()
+        self.count = time
+    def setpos(self,x,y):
+        self.rect.right = x
+        self.rect.y = y-self.rect.height/2
+    def update(self):
+        self.count-=1
+        if self.count<1:
+            self.kill()    
+class levelText(pygame.sprite.Sprite):
+    def __init__(self,text,position,size,color,time):
+        super().__init__()
+        MyFont = pygame.font.Font(pygame.font.get_default_font(),size)
+        self.image = MyFont.render(text,True,color)
+        self.rect = self.image.get_rect()
+        self.rect.x=position[0]-self.rect.width/2
+        self.rect.y=position[1]-self.rect.height/2
+        self.count = time
+    def update(self):
+        self.count-=1
+        if self.count<1:
+            self.kill()
 
-        
     '''
     new=True
     for i in backgrounds:

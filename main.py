@@ -7,6 +7,7 @@ world.fillBackground()
 
 
 
+
 '''
 load
 mainmenu
@@ -28,7 +29,9 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
     lives = lives
     tim = 0
     turretComb = []
-    
+    currentlevel=0
+    levelprogress = 100
+    roundprogress = 100
     deadplayer = ["","","",""]
     hero = world.player.player(100,C.screenSize[1],"FinalSprite","left","playerOne")
     world.players.add(hero)
@@ -118,9 +121,8 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                         hero2.adjustHeading([1,0])                 
                 elif event.key == 113: #q
                     world.spawn()
-                    
-                    #world.enemeys.add(world.enemies.Real_looper(620,-50))
-                    #world.enemeys.add(world.powerUp('snake'))
+                elif event.key == 114: #r
+                    world.FX.add(world.levelText("Hello World",(C.screenSize[0]/2,C.screenSize[1]/2),40,(198,124,49),180))
                 elif event.key == 101: #e
                     world.enemeys.add(world.bosses.bigPlane(500,30))
 
@@ -194,7 +196,7 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
         if len(turretComb)>0:
             if 119 in turretComb and 97 in turretComb:
                 hero.setTurretHeading([-1,1])
-                her2.setTurretHeading([-1,1])
+                hero2.setTurretHeading([-1,1])
             elif 97 in turretComb  and 115 in turretComb:
                 hero.setTurretHeading([-1,-1])
                 hero2.setTurretHeading([-1,-1])
@@ -224,6 +226,7 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
         if tim%10==0:
             turretComb = []
         #peeter
+        #updater fucntions
         for i in world.enemeys:
             action=i.update(world.players,world.attacks)
             if action !=None:
@@ -242,11 +245,30 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                         i.die()
                     except:
                         i.kill()
+                        
+                        
+        #level and difficulty modulation
+        
+        roundprogress+=1  
+        if roundprogress>60*5:#5seconds
+            roundprogress=0
+            levelprogress+=1
+            if levelprogress>10:
+                currentlevel+=1
+                levelprogress=0
+                world.FX.add(world.levelText("level "+str(currentlevel),(C.screenSize[0]/2,C.screenSize[1]/3),40,(198,124,49),180))
+            else:
+                world.spawn(currentlevel)
 
-
-
+        
+            
+        '''    
+        elif event.key == 114: #r
+            world.FX.add(world.levelText("Hello World",(C.screenSize[0]/2,C.screenSize[1]/2),40,(198,124,49),180))
+        elif event.key == 101: #e
+            world.enemeys.add(world.bosses.bigPlane(500,30))            
+        '''
         world.moveWorld()
-
         for i in world.enemeyattacks:
             i.update()
         for i in world.players:
@@ -286,9 +308,6 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                         playerTwoDead = False
                         i.COOP(False)
                         world.players.add(hero2)
-
-
-
         for i in world.attacks:
             i.update()
         for i in world.FX:
@@ -303,8 +322,59 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
         clock.tick(60)
 
 
+def startpage():
+    first=True
+    optionposition = 0
+    selector = world.arrow(10,180)
+    world.FX.add(selector)
+    Title = world.levelText("Tailgunner",(C.screenSize[0]/2,C.screenSize[1]/3),40,(198,124,49),180)
+    world.FX.add(Title)
+    Start = world.levelText("start",(C.screenSize[0]/2,C.screenSize[1]/2),40,(198,124,49),180)
+    world.FX.add(Start)
+    Exit = world.levelText("exit",(C.screenSize[0]/2,2*C.screenSize[1]/3),40,(198,124,49),180)
+    world.FX.add(world.levelText("exit",(C.screenSize[0]/2,2*C.screenSize[1]/3),40,(198,124,49),180))
+    options = [Start,Exit]    
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                done = True
+                fullexit = True  
+                return "exit"
+            if event.type == pygame.KEYDOWN:
+                if event.key==273:
+                    optionposition-=1
+                    if optionposition<0:
+                        optionposition=len(options)-1
+                elif event.key==274:
+                    optionposition+=1
+                    if optionposition>len(options)-1:
+                        optionposition=0  
+                elif event.key == 120:
+                    #return the results
+                    if optionposition==0:
+                        return "start"
+                    elif optionposition==1:
+                        return "exit"
+                    
+                    
+                else:
+                    print(event.key)
 
+            
+        #move selector
+        pos = [options[optionposition].rect.left,options[optionposition].rect.center[1]]
+        selector.setpos(pos[0],pos[1])
+        
+        s=world.drawall()
+        world.moveWorld()
+        
 #orginization
-print(singlePlaneLevel("temp",3))
+
+
+choice = startpage()
+if choice == "start":
+    print(singlePlaneLevel("temp",3))
+elif choice == "exit":
+    pass
 print("done")
 pygame.quit()

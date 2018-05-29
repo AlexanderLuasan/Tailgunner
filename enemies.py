@@ -81,7 +81,7 @@ class Real_looper(pygame.sprite.Sprite):
         self.acceleration_vector = [0,0]
         self.rect = self.image.get_rect()
         self.rect.x = x + self.rect.width/2
-        self.rect.y= y + self.rect.height/2
+        self.rect.y= -20
         self.fire = 0
         self.tim = 0
 

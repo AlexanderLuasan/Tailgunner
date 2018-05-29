@@ -74,7 +74,7 @@ class rubble(pygame.sprite.Sprite):
             self.rect.y+=self.heading[1]
         self.count-=1
         
-        if self.count <1:
+        if self.count-random.randint(-60,60) <1:
             self.kill()
         if abs(self.rect.x-constants.screenSize[0]/2)>50+constants.screenSize[0]/2 or abs(self.rect.y-constants.screenSize[1]/2)>50+constants.screenSize[1]/2:
             self.kill() 
