@@ -32,7 +32,7 @@ class turret(pygame.sprite.Sprite):
         self.relative = [int(x),int(y)]
         self.turretAngle=0
         self.image = self.origimage 
-        self.mode = "none"
+        self.mode = "basic"
         self.firecount = 5
     def setloc(self,x,y):
         self.rect.x=x+self.relative[0]-self.rect.width/2

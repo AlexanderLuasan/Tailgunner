@@ -210,7 +210,7 @@ class player(pygame.sprite.Sprite):
         
         #power ups
         self.CurrentFireMethod = "basic" #basic shotgun split rotate toAdd laser semiauto fullauto  
-        self.turretFireMode = "Tfull"
+        self.turretFireMode = "basicS"
         self.mainBulletCount = 0
         self.turretBulletCount = 0
         self.powerupCount = 1
@@ -219,7 +219,7 @@ class player(pygame.sprite.Sprite):
         #for rotation
         self.powerupdirection = 1
         #for shield
-        self.sheild=True
+        self.sheild=False
       
         
     def update(self,enimies,attacks):
@@ -303,16 +303,29 @@ class player(pygame.sprite.Sprite):
                     end.append(s)
             except:
                 end.append(shots)
-            self.gunBar.adjv(-1)
+            if self.CurrentFireMethod=='full' or self.CurrentFireMethod=='laser' or self.CurrentFireMethod=='semi' or self.CurrentFireMethod=='snake':
+                self.gunBar.adjv(-1)
+            else:
+                self.gunBar.adjv(-2)
+           
             #delay after shot
             if (self.CurrentFireMethod == "semi" or self.CurrentFireMethod == "snake" ) and self.mainBulletCount<5:
                 self.firing=True
                 self.mainBulletCount+=1
                 self.mainFireCount=2
+
                 print("w")
             elif self.CurrentFireMethod == "full":
                 self.firing=True
                 self.mainFireCount =2
+
+            elif self.CurrentFireMethod == "laser":
+                self.firing=True
+                self.mainFireCount =0
+
+            elif self.CurrentFireMethod == "basic":
+                self.firing=False
+                self.mainFireCount =20              
             else:
                 self.mainFireCount = 10
                 self.mainBulletCount=0
@@ -326,7 +339,7 @@ class player(pygame.sprite.Sprite):
         return end
     def makeSpecialShots(self,method,mainangle):
         #produces shotting patterns
-        if method == "basic" or method == "semi" or method == "full" or "laser":
+        if method == "basic" or method == "semi" or method == "full" or method == "laser":
             s=projectile.playershot(self.rect.center[0],self.rect.center[1],mainangle)
             return s
         if method == "basicS" or method == "Tsemi" or method == "Tfull":
@@ -567,30 +580,64 @@ class player(pygame.sprite.Sprite):
         powerUpType = ObjPowerup.powerUp
         ObjPowerup.kill()
         self.healthBar.adjv(1)
-        if self.powerupCount<5:
-            self.powerupCount+=1
+
         if powerUpType=="sheild":
             self.sheild = True
         elif powerUpType=="life":
             self.revive = True
-        elif powerUpType=="split":
-            self.gunBar.adjv(200)
-            self.CurrentFireMethod = "split"
-        elif powerUpType=="snake":
-            self.gunBar.adjv(200)
-            self.CurrentFireMethod = "snake"
-        elif powerUpType=="prox":
-            self.gunBar.adjv(200)
-            self.CurrentFireMethod = "shotgun"
-        elif powerUpType=="auto":
-            self.gunBar.adjv(200)
-            self.CurrentFireMethod = "full" 
-        elif powerUpType=="semi":
-            self.gunBar.adjv(200)
-            self.CurrentFireMethod = "semi" 
-        elif powerUpType=="laser":
-            self.gunBar.adjv(200)
-            self.CurrentFireMethod = "laser"
+        if self.CurrentFireMethod == "basic":
+            if powerUpType=="split":
+                self.powerupCount=2
+                self.gunBar.adjv(200)
+                if self.CurrentFireMethod=="split":
+                    self.powerupCount+=1
+                self.CurrentFireMethod = "split"
+            elif powerUpType=="snake":
+                self.powerupCount=4
+                self.gunBar.adjv(200)
+                if self.CurrentFireMethod=="snake":
+                    self.powerupCount+=1            
+                self.CurrentFireMethod = "snake"
+            elif powerUpType=="prox":
+                self.gunBar.adjv(200)
+                self.powerupCount=3
+                if self.CurrentFireMethod=="shotgun":
+                    self.powerupCount+=1
+                self.CurrentFireMethod = "shotgun"
+            elif powerUpType=="auto":
+                self.gunBar.adjv(200)
+                self.CurrentFireMethod = "full"
+            elif powerUpType=="semi":
+                self.gunBar.adjv(200)
+                self.CurrentFireMethod = "semi"
+            elif powerUpType=="laser":
+                self.gunBar.adjv(200)
+                self.CurrentFireMethod = "laser"
+        else:
+            if powerUpType=="split":
+                self.ammo1.adjv(200)
+                if self.turretFireMode=="split":
+                    self.powerupCount+=1
+                self.turretFireMode = "split"
+            elif powerUpType=="snake":
+                self.ammo1.adjv(200)
+                if self.turretFireMode=="snake":
+                    self.powerupCount+=1            
+                self.turretFireMode = "snake"
+            elif powerUpType=="prox":
+                self.ammo1.adjv(200)
+                if self.turretFireMode=="shotgun":
+                    self.powerupCount+=1
+                self.turretFireMode = "shotgun"
+            elif powerUpType=="auto":
+                self.ammo1.adjv(200)
+                self.turretFireMode = "full"
+            elif powerUpType=="semi":
+                self.ammo1.adjv(200)
+                self.turretFireMode = "semi"
+            elif powerUpType=="laser":
+                self.ammo1.adjv(200)
+                self.turretFireMode = "laser"            
         
     def COOP(self,state):
         if state:

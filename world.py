@@ -81,20 +81,20 @@ def spawn(difficulty):
         count = 1
     else:
         count=2
-    for i in range(2):
+    for i in range(count):
         choice=constants.random.randint(0,100)
-        print(choice)
-        if choice>75:
-            print(1)
+
+        if choice>90:
+
             power=constants.random.choice(["sheild",'life','snake','split','prox','auto','semi','laser'])
             e=powerUp(power)#list of powerups
     
-        elif choice>50:
-            print(2)
+        elif choice>60:
+
             e=enemies.Real_looper(constants.random.randint(10,constants.screenSize[0]-10),-20)#change x to one side to other side
     
-        elif choice>25:
-            print(3)
+        elif choice>40:
+
             x=constants.random.choice([-100,constants.screenSize[0]+100])
             y=constants.random.randint(100,constants.screenSize[1]-200)
             wings = constants.random.randint(1,10)
@@ -103,13 +103,14 @@ def spawn(difficulty):
             e=enemies.SpinPlane(x,y,direction=dire,wing=wings,side=sidet) #change both x and y and both also change direction
     
         else:
-            print(4)
+
             x=constants.random.randint(100,constants.screenSize[0]-100)
             sidet=constants.random.choice(["both","left","right"])
-            wings = constants.random.randint(1,2)
+            wings = constants.random.randint(1,3)
+            print(wings)
             if sidet=="both":
                 wings=(wings*2)+1
-            e=enemies.strafer(x,-10,direction=1,wing=5,side = sidet)#change both x and y
+            e=enemies.strafer(x,-10,direction=1,wing=wings,side = sidet)#change both x and y
         enemeys.add(e)
     
 def explode(obj,cheap = False):

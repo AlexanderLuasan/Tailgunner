@@ -375,16 +375,16 @@ class strafer(pygame.sprite.Sprite):
             if self.first == True:
                 self.first=False
                 if self.wings>0:
-                    if self.side=="r":
+                    if self.side[0]=="r":
                         self.anglePos = 1#C.random.randint(0,1)
                         self.heading=C.angleToVector(self.angles[self.anglePos],2)
                         #self.image = self.animation[self.anglePos]
-                        return ("ep",strafer(self.rect.x+self.rect.width*1.5,self.rect.top-self.rect.height/4,C.math.pi/2,wing=self.wings/2,side="r"))
-                    elif self.side=="l":
+                        return ("ep",strafer(self.rect.x+self.rect.width*1.5,self.rect.top-self.rect.height/4,C.math.pi/2,wing=self.wings-1,side="r"))
+                    elif self.side[0]=="l":
                         self.anglePos = 3#C.random.randint(3,4)
                         self.heading=C.angleToVector(self.angles[self.anglePos],2)
                         #self.image = self.animation[self.anglePos]
-                        return ("ep",strafer(self.rect.x-self.rect.width/2,self.rect.top-self.rect.height/4,C.math.pi/2,wing=self.wings/2,side="l"))
+                        return ("ep",strafer(self.rect.x-self.rect.width/2,self.rect.top-self.rect.height/4,C.math.pi/2,wing=self.wings-1,side="l"))
                     elif self.side=="both":
                         self.anglePos = 2#C.random.randint(0,4)
                         self.heading=C.angleToVector(self.angles[self.anglePos],2)

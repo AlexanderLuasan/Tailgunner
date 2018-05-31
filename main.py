@@ -22,32 +22,38 @@ chose level
 world.fx.smokeINIT()
 fullexit=False
 
-def singlePlaneLevel(name,lives,twoPlayer = False):
+def singlePlaneLevel(twoPlayers = False,twoPlanes = False):
     count=0
     other = True
     done=False
-    lives = lives
     tim = 0
     turretComb = []
     currentlevel=0
     levelprogress = 100
     roundprogress = 100
+    #game states
+    canRevive = twoPlanes
     deadplayer = ["","","",""]
+    #setup one player
     hero = world.player.player(100,C.screenSize[1],"FinalSprite","left","playerOne")
     world.players.add(hero)
-    hero2 = world.player.player(100,C.screenSize[1],"FinalSprite","right","playerTwo")
-    if twoPlayer == True:
-        world.players.add(hero2)
-    
     playerOneDead = False
-    if twoPlayer==True:
-        playerTwoDead = False
-    else:
-        playerTwoDead = True
-    
     for i in hero.getHud():
         world.huds.add(i)
-    if twoPlayer == True:
+        
+    #playertwo setup
+    if twoPlanes==True:
+        hero2 = world.player.player(100,C.screenSize[1],"FinalSprite","right","playerTwo")
+        world.players.add(hero2)
+        playerTwoDead = False
+    elif twoPlayers==True:
+        playerTwoDead = True
+        hero.COOP(True)
+    else:
+        playerTwoDead = False
+    
+    
+    if twoPlanes == True:
         for i in hero2.getHud():
             world.huds.add(i)
     
@@ -61,22 +67,22 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                     if playerOneDead == False:
                         hero.adjustHeading([-1,0])
                     elif playerOneDead==True:
-                        turretComb.append(119)
+                        turretComb.append(97)
                 elif event.key==273:
                     if playerOneDead == False:
                         hero.adjustHeading([0,-1])
                     elif playerOneDead==True:
-                        turretComb.append(97)                     
+                        turretComb.append(119)              
                 elif event.key==275:
                     if playerOneDead == False:
                         hero.adjustHeading([1,0])
                     elif playerOneDead==True:
-                        turretComb.append(115)                    
+                        turretComb.append(100)         
                 elif event.key==274:
                     if playerOneDead == False:
                         hero.adjustHeading([0,1])
                     elif playerOneDead==True:
-                        turretComb.append(119)                    
+                        turretComb.append(115)                    
                 elif event.key == 122:
                     if playerOneDead == False:
                         hero.setRoll(-1)
@@ -121,8 +127,6 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                         hero2.adjustHeading([1,0])                 
                 elif event.key == 113: #q
                     world.spawn()
-                elif event.key == 114: #r
-                    world.FX.add(world.levelText("Hello World",(C.screenSize[0]/2,C.screenSize[1]/2),40,(198,124,49),180))
                 elif event.key == 101: #e
                     world.enemeys.add(world.bosses.bigPlane(500,30))
 
@@ -168,10 +172,10 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                     elif playerOneDead==True:
                         hero2.fireTurret(False)
                 elif event.key == 104:
-                    if playerTwoDead == False:
-                        hero2.fireToggle(False)
-                    elif playerTwoDead == True:
-                        hero2.fireTurret(False)
+                        if playerTwoDead == False and twoPlanes == True:
+                            hero2.fireToggle(False)
+                        elif playerTwoDead == True:
+                            hero.fireTurret(False)
                 elif event.key == 119:
                     if playerTwoDead == True:
                         pass
@@ -196,30 +200,40 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
         if len(turretComb)>0:
             if 119 in turretComb and 97 in turretComb:
                 hero.setTurretHeading([-1,1])
-                hero2.setTurretHeading([-1,1])
+                if twoPlanes == True:
+                    hero2.setTurretHeading([-1,1])
             elif 97 in turretComb  and 115 in turretComb:
                 hero.setTurretHeading([-1,-1])
-                hero2.setTurretHeading([-1,-1])
+                if twoPlanes == True:
+                    hero2.setTurretHeading([-1,-1])
             elif 115 in turretComb and 100 in turretComb:
                 hero.setTurretHeading([1,-1])
-                hero2.setTurretHeading([1,-1])
+                if twoPlanes == True:
+                    hero2.setTurretHeading([1,-1])
             elif 100 in turretComb and 119 in turretComb:
                 hero.setTurretHeading([1,1])
-                hero2.setTurretHeading([1,1])
+                if twoPlanes == True:
+                    hero2.setTurretHeading([1,1])
             elif 119 in turretComb:
                 hero.setTurretHeading([0,1])
-                hero2.setTurretHeading([0,1])
+                if twoPlanes == True:
+                    hero2.setTurretHeading([0,1])
             elif 97 in turretComb:
                 hero.setTurretHeading([-1,0])
-                hero2.setTurretHeading([-1,0])
+                if twoPlanes == True:
+                    hero2.setTurretHeading([-1,0])
             elif 115 in turretComb:
                 hero.setTurretHeading([0,-1])
-                hero2.setTurretHeading([0,-1])
+                if twoPlanes == True:
+                    hero2.setTurretHeading([0,-1])
             elif 100 in turretComb:
                 hero.setTurretHeading([1,0])
-                hero2.setTurretHeading([1,0])
+                if twoPlanes == True:
+                    hero2.setTurretHeading([1,0])
             else:
                 hero.setTurretHeading([0,0])
+                if twoPlanes == True:
+                    hero2.setTurretHeading([0,0])                
         tim +=1
         if tim == 60:
             tim = 0
@@ -256,18 +270,16 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
             if levelprogress>10:
                 currentlevel+=1
                 levelprogress=0
-                world.FX.add(world.levelText("level "+str(currentlevel),(C.screenSize[0]/2,C.screenSize[1]/3),40,(198,124,49),180))
+                if currentlevel == 5:
+                    world.FX.add(world.levelText("Boss Level",(C.screenSize[0]/2,C.screenSize[1]/3),40,(198,124,49),180))
+                    world.enemeys.add(world.bosses.bigPlane(500,-500))
+                    
+                else:
+                    world.FX.add(world.levelText("level "+str(currentlevel),(C.screenSize[0]/2,C.screenSize[1]/3),40,(198,124,49),180))
             else:
-                world.spawn(currentlevel)
-
-        
-            
-        '''    
-        elif event.key == 114: #r
-            world.FX.add(world.levelText("Hello World",(C.screenSize[0]/2,C.screenSize[1]/2),40,(198,124,49),180))
-        elif event.key == 101: #e
-            world.enemeys.add(world.bosses.bigPlane(500,30))            
-        '''
+                if currentlevel<5:
+                    world.spawn(currentlevel-5)
+                
         world.moveWorld()
         for i in world.enemeyattacks:
             i.update()
@@ -280,13 +292,19 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                     deadplayer[2] = action[2]#name
                     deadplayer[1] = action[3]#side
                     deadplayer[0] = action[4]#image
-                    
-                    if action[2] == "playerOne":
-                        playerOneDead = True
-                        hero2.COOP(True)
-                    elif action[2] == "playerTwo":
-                        playerTwoDead = True
-                        hero.COOP(True)
+                    if twoPlanes==True:
+                        if action[2] == "playerOne" and playerTwoDead==True:
+                            return "game over"
+                        elif action[2] == "playerTwo" and playerOneDead==True:
+                            return "game over"
+                        if action[2] == "playerOne":
+                            playerOneDead = True
+                            hero2.COOP(True)
+                        elif action[2] == "playerTwo":
+                            playerTwoDead = True
+                            hero.COOP(True)
+                    else:
+                        return "game over"
                 elif action[0] == "fire":
                     for i in action:
                         if i != "fire":
@@ -298,16 +316,19 @@ def singlePlaneLevel(name,lives,twoPlayer = False):
                     print("explosion1")
                     world.explode(i)
                 elif action[0] == "revive":
-                    if playerOneDead == True:
-                        hero = world.player.player(i.rect.y+i.rect.height,i.rect.x+i.rect.width,deadplayer[0],deadplayer[1],deadplayer[2])
-                        i.COOP(False)
-                        playerOneDead = False
-                        world.players.add(hero)
-                    elif playerTwoDead == True:
-                        hero2 = world.player.player(i.rect.y+i.rect.height,i.rect.x+i.rect.width,deadplayer[0],deadplayer[1],deadplayer[2])
-                        playerTwoDead = False
-                        i.COOP(False)
-                        world.players.add(hero2)
+                    try:
+                        if playerOneDead == True:
+                            hero = world.player.player(i.rect.y+i.rect.height,i.rect.x+i.rect.width,deadplayer[0],deadplayer[1],deadplayer[2])
+                            i.COOP(False)
+                            playerOneDead = False
+                            world.players.add(hero)
+                        elif playerTwoDead == True:
+                            hero2 = world.player.player(i.rect.y+i.rect.height,i.rect.x+i.rect.width,deadplayer[0],deadplayer[1],deadplayer[2])
+                            playerTwoDead = False
+                            i.COOP(False)
+                            world.players.add(hero2)
+                    except:
+                        pass
         for i in world.attacks:
             i.update()
         for i in world.FX:
@@ -327,13 +348,18 @@ def startpage():
     optionposition = 0
     selector = world.arrow(10,180)
     world.FX.add(selector)
-    Title = world.levelText("Tailgunner",(C.screenSize[0]/2,C.screenSize[1]/3),40,(198,124,49),180)
+    Title = world.levelText("Tailgunner",(C.screenSize[0]/2,C.screenSize[1]/6),60,(198,124,49),180)
     world.FX.add(Title)
-    Start = world.levelText("start",(C.screenSize[0]/2,C.screenSize[1]/2),40,(198,124,49),180)
-    world.FX.add(Start)
-    Exit = world.levelText("exit",(C.screenSize[0]/2,2*C.screenSize[1]/3),40,(198,124,49),180)
-    world.FX.add(world.levelText("exit",(C.screenSize[0]/2,2*C.screenSize[1]/3),40,(198,124,49),180))
-    options = [Start,Exit]    
+    SinglePlayer = world.levelText("SinglePlayer",(C.screenSize[0]/2,C.screenSize[1]/3),40,(198,124,49),180)
+    world.FX.add(SinglePlayer)
+    coop = world.levelText("COOP",(C.screenSize[0]/2,C.screenSize[1]/3+100),40,(198,124,49),180)
+    world.FX.add(coop)  
+    
+    TwoPlayers = world.levelText("TwoPlayers",(C.screenSize[0]/2,C.screenSize[1]/3+200),40,(198,124,49),180)
+    world.FX.add(TwoPlayers)        
+    Exit = world.levelText("Exit",(C.screenSize[0]/2,C.screenSize[1]/3+300),40,(198,124,49),180)
+    world.FX.add(Exit)
+    options = [SinglePlayer,coop,TwoPlayers,Exit]    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -352,14 +378,18 @@ def startpage():
                 elif event.key == 120:
                     #return the results
                     if optionposition==0:
-                        return "start"
-                    elif optionposition==1:
+                        return "one"
+                    elif optionposition==3:
                         return "exit"
+                    elif optionposition==1:
+                        return "coop"
+                    elif optionposition==2:
+                        return "two"                       
                     
                     
                 else:
                     print(event.key)
-
+            print(coop.rect.height)
             
         #move selector
         pos = [options[optionposition].rect.left,options[optionposition].rect.center[1]]
@@ -372,8 +402,14 @@ def startpage():
 
 
 choice = startpage()
-if choice == "start":
-    print(singlePlaneLevel("temp",3))
+print(choice)
+
+if choice == "one":
+    singlePlaneLevel(twoPlayers = False,twoPlanes = False)
+elif choice == "coop":
+    singlePlaneLevel(twoPlayers = True,twoPlanes = False)
+elif choice == "two":
+    singlePlaneLevel(twoPlayers = False,twoPlanes = True)
 elif choice == "exit":
     pass
 print("done")
