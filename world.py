@@ -107,7 +107,6 @@ def spawn(difficulty):
             x=constants.random.randint(100,constants.screenSize[0]-100)
             sidet=constants.random.choice(["both","left","right"])
             wings = constants.random.randint(1,3)
-            print(wings)
             if sidet=="both":
                 wings=(wings*2)+1
             e=enemies.strafer(x,-10,direction=1,wing=wings,side = sidet)#change both x and y

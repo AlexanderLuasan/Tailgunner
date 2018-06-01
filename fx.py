@@ -30,7 +30,7 @@ class smokeCloud(pygame.sprite.Sprite):
         if abs(constants.screenSize[0]/2-self.rect.x)>constants.screenSize[0]/2 and abs(constants.screenSize[1]/2-self.rect.y)>constants.screenSize[1]/2:
             self.kill()
 def smokeTrail(smokelevel,x,y):
-    if random.randint(-2,smokelevel)>0:
+    if random.randint(-10,smokelevel)>0:
         return(smokeCloud(x,y))
     else:
         return(None)

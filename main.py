@@ -24,6 +24,9 @@ fullexit=False
 
 def singlePlaneLevel(twoPlayers = False,twoPlanes = False):
     count=0
+    score = 0
+    scorecount = world.levelText("score: "+str(score),(100,100),40,(198,124,49),1000)
+    world.FX.add(scorecount)
     other = True
     done=False
     tim = 0
@@ -131,8 +134,6 @@ def singlePlaneLevel(twoPlayers = False,twoPlanes = False):
                     world.enemeys.add(world.bosses.bigPlane(500,30))
 
                     pass          
-                else:
-                    print(event.key)
             elif event.type == pygame.KEYUP:
                 if event.key==276:
                     if playerOneDead == False:
@@ -259,6 +260,10 @@ def singlePlaneLevel(twoPlayers = False,twoPlanes = False):
                         i.die()
                     except:
                         i.kill()
+                    scorecount.kill()
+                    score+=1
+                    scorecount = world.levelText("score: "+str(score),(100,100),40,(198,124,49),1000)
+                    world.FX.add(scorecount)
                         
                         
         #level and difficulty modulation
@@ -313,7 +318,6 @@ def singlePlaneLevel(twoPlayers = False,twoPlanes = False):
                             pygame.mixer.music.load("projectile.wav")
                             pygame.mixer.music.play()
                 elif action[0] == "explosion":
-                    print("explosion1")
                     world.explode(i)
                 elif action[0] == "revive":
                     try:
@@ -388,8 +392,8 @@ def startpage():
                     
                     
                 else:
-                    print(event.key)
-            print(coop.rect.height)
+                    pass
+
             
         #move selector
         pos = [options[optionposition].rect.left,options[optionposition].rect.center[1]]
@@ -402,7 +406,7 @@ def startpage():
 
 
 choice = startpage()
-print(choice)
+
 
 if choice == "one":
     singlePlaneLevel(twoPlayers = False,twoPlanes = False)

@@ -68,7 +68,7 @@ class Real_looper(pygame.sprite.Sprite):
             self.animation.append(templist)
             templist = []
         self.animation.append([])
-        print(len(self.animation))
+        #print(len(self.animation))
 
         #self.animation is a nested list
         #self.animation[0] is a list of rotor, nonfiring images

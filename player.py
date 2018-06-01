@@ -314,7 +314,7 @@ class player(pygame.sprite.Sprite):
                 self.mainBulletCount+=1
                 self.mainFireCount=2
 
-                print("w")
+
             elif self.CurrentFireMethod == "full":
                 self.firing=True
                 self.mainFireCount =2
